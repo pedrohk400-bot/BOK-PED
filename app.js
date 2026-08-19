@@ -1,7 +1,9 @@
-const button = document.getElementById("createAccount");
 const message = document.getElementById("message");
+const button = document.getElementById("createAccount");
 
-button.addEventListener("click", function () {
-    message.textContent = "JavaScript يعمل ✅";
-    message.className = "success";
-});
+if (button) {
+    button.addEventListener("click", function () {
+        message.className = "success";
+        message.textContent = "JavaScript يعمل ✅";
+    });
+}
