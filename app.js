@@ -12,10 +12,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
-// ================================
-// Firebase Configuration
-// ================================
-
 const firebaseConfig = {
     apiKey: "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
     authDomain: "bok-ped.firebaseapp.com",
@@ -27,20 +23,12 @@ const firebaseConfig = {
 };
 
 
-// ================================
-// Firebase Start
-// ================================
-
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
 const db = getDatabase(app);
 
-
-// ================================
-// الصفحة
-// ================================
 
 const usernameInput =
     document.getElementById("username");
@@ -58,30 +46,6 @@ const message =
     document.getElementById("message");
 
 
-// ================================
-// التأكد أن Firebase اشتغل
-// ================================
-
-if (!createButton) {
-
-    console.error(
-        "زر إنشاء الحساب غير موجود في index.html"
-    );
-
-} else {
-
-    createButton.addEventListener(
-        "click",
-        createAccount
-    );
-
-}
-
-
-// ================================
-// توليد رقم حساب 7 أرقام
-// ================================
-
 function generateAccountNumber() {
 
     return Math.floor(
@@ -92,269 +56,57 @@ function generateAccountNumber() {
 }
 
 
-// ================================
-// إنشاء الحساب
-// ================================
+function showMessage(text, type) {
 
-async function createAccount() {
+    message.className = type;
 
-    const username =
-        usernameInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-    const confirmPassword =
-        confirmPasswordInput.value;
-
-
-    // ----------------------------
-    // التحقق
-    // ----------------------------
-
-    if (username.length < 3) {
-
-        showError(
-            "اسم المستخدم يجب أن يكون 3 أحرف على الأقل."
-        );
-
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        showError(
-            "كلمة المرور يجب أن تكون 6 أحرف على الأقل."
-        );
-
-        return;
-    }
-
-
-    if (password !== confirmPassword) {
-
-        showError(
-            "كلمتا المرور غير متطابقتين."
-        );
-
-        return;
-    }
-
-
-    // ----------------------------
-    // تحميل
-    // ----------------------------
-
-    createButton.disabled = true;
-
-    createButton.textContent =
-        "جاري إنشاء الحساب...";
-
-    message.textContent = "";
-
-
-    try {
-
-        // ----------------------------
-        // رقم الحساب
-        // ----------------------------
-
-        const accountNumber =
-            generateAccountNumber();
-
-
-        // ----------------------------
-        // بريد داخلي لـ Firebase
-        // ----------------------------
-
-        const email =
-            accountNumber +
-            "@bok-ped.firebaseapp.com";
-
-
-        // ----------------------------
-        // إنشاء مستخدم Firebase
-        // ----------------------------
-
-        const result =
-            await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
-
-
-        const uid =
-            result.user.uid;
-
-
-        // ----------------------------
-        // حفظ بيانات المستخدم
-        // ----------------------------
-
-        await set(
-            ref(
-                db,
-                "users/" + uid
-            ),
-            {
-
-                username:
-                    username,
-
-                accountNumber:
-                    accountNumber
-
-            }
-        );
-
-
-        // ----------------------------
-        // حفظ رقم الحساب
-        // ----------------------------
-
-        await set(
-            ref(
-                db,
-                "accountNumbers/" +
-                accountNumber
-            ),
-            {
-
-                uid:
-                    uid
-
-            }
-        );
-
-
-        // ----------------------------
-        // نجاح
-        // ----------------------------
-
-        message.className =
-            "success";
-
-        message.innerHTML =
-
-            "<div>تم إنشاء الحساب بنجاح 🎉</div>" +
-
-            "<div class='account-box'>" +
-
-            "<div>اسم المستخدم</div>" +
-
-            "<strong>" +
-            username +
-            "</strong>" +
-
-            "<br><br>" +
-
-            "<div>رقم الحساب</div>" +
-
-            "<div class='account-number'>" +
-            accountNumber +
-            "</div>" +
-
-            "</div>" +
-
-            "<p style='margin-top:15px;'>" +
-            "احتفظ برقم الحساب وكلمة المرور." +
-            "</p>";
-
-
-        usernameInput.value = "";
-
-        passwordInput.value = "";
-
-        confirmPasswordInput.value = "";
-
-
-    } catch (error) {
-
-        console.error(
-            "Firebase Error:",
-            error
-        );
-
-
-        showError(
-            "خطأ: " +
-            error.code +
-            "<br>" +
-            error.message
-        );
-
-    }
-
-
-    createButton.disabled = false;
-
-    createButton.textContent =
-        "فتح الحساب";
+    message.innerHTML = text;
 
 }
 
 
-// ================================
-// عرض الخطأ
-// ================================
+createButton.addEventListener(
+    "click",
+    async function () {
 
-function showError(text) {
+        const username =
+            usernameInput.value.trim();
 
-    message.className =
-        "error";
-
-    message.innerHTML =
-        text;
-
-        }        const password =
+        const password =
             passwordInput.value;
 
         const confirmPassword =
             confirmPasswordInput.value;
 
 
-        // -------------------------------
-        // التحقق من اسم المستخدم
-        // -------------------------------
-
         if (username.length < 3) {
 
-            message.className = "error";
-
-            message.textContent =
-                "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.";
+            showMessage(
+                "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.",
+                "error"
+            );
 
             return;
         }
 
-
-        // -------------------------------
-        // التحقق من كلمة المرور
-        // -------------------------------
 
         if (password.length < 6) {
 
-            message.className = "error";
-
-            message.textContent =
-                "كلمة المرور يجب أن تكون 6 أحرف أو أرقام على الأقل.";
+            showMessage(
+                "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
+                "error"
+            );
 
             return;
         }
 
 
-        // -------------------------------
-        // تأكيد كلمة المرور
-        // -------------------------------
-
         if (password !== confirmPassword) {
 
-            message.className = "error";
-
-            message.textContent =
-                "كلمتا المرور غير متطابقتين.";
+            showMessage(
+                "كلمتا المرور غير متطابقتين.",
+                "error"
+            );
 
             return;
         }
@@ -362,51 +114,32 @@ function showError(text) {
 
         createButton.disabled = true;
 
-        message.className = "";
-
-        message.textContent =
+        createButton.textContent =
             "جاري إنشاء الحساب...";
 
 
         try {
 
-            // -------------------------------
-            // توليد رقم الحساب
-            // -------------------------------
-
             const accountNumber =
-                await generateUniqueAccountNumber();
+                generateAccountNumber();
 
 
-            // -------------------------------
-            // Firebase Authentication
-            // -------------------------------
-
-            /*
-             * نستخدم بريدًا داخليًا مبنيًا
-             * على رقم الحساب.
-             */
-
-            const internalEmail =
+            const email =
                 accountNumber +
                 "@bok-ped.firebaseapp.com";
 
 
-            const userCredential =
+            const result =
                 await createUserWithEmailAndPassword(
                     auth,
-                    internalEmail,
+                    email,
                     password
                 );
 
 
             const uid =
-                userCredential.user.uid;
+                result.user.uid;
 
-
-            // -------------------------------
-            // حفظ بيانات المستخدم
-            // -------------------------------
 
             await set(
                 ref(
@@ -414,17 +147,14 @@ function showError(text) {
                     "users/" + uid
                 ),
                 {
-                    username: username,
+                    username:
+                        username,
 
                     accountNumber:
                         accountNumber
                 }
             );
 
-
-            // -------------------------------
-            // حفظ رقم الحساب كرقم مستخدم
-            // -------------------------------
 
             await set(
                 ref(
@@ -433,52 +163,40 @@ function showError(text) {
                     accountNumber
                 ),
                 {
-                    uid: uid
+                    uid:
+                        uid
                 }
             );
 
 
-            // -------------------------------
-            // نجاح
-            // -------------------------------
+            showMessage(
 
-            message.className =
-                "success";
+                "<div>تم إنشاء الحساب بنجاح 🎉</div>" +
 
-            message.innerHTML = `
-                
-                <div>
-                    تم إنشاء الحساب بنجاح 🎉
-                </div>
+                "<div class='account-box'>" +
 
-                <div class="account-box">
+                "<div>اسم المستخدم</div>" +
 
-                    <div>
-                        اسم المستخدم
-                    </div>
+                "<strong>" +
+                username +
+                "</strong>" +
 
-                    <strong>
-                        ${username}
-                    </strong>
+                "<br><br>" +
 
-                    <br><br>
+                "<div>رقم الحساب</div>" +
 
-                    <div>
-                        رقم الحساب
-                    </div>
+                "<div class='account-number'>" +
+                accountNumber +
+                "</div>" +
 
-                    <div class="account-number">
-                        ${accountNumber}
-                    </div>
+                "</div>" +
 
-                </div>
+                "<p style='margin-top:15px'>" +
+                "احتفظ برقم الحساب وكلمة المرور." +
+                "</p>",
 
-                <p style="margin-top:15px;">
-                    احتفظ برقم الحساب وكلمة المرور
-                    لتسجيل الدخول من التطبيق.
-                </p>
-
-            `;
+                "success"
+            );
 
 
             usernameInput.value = "";
@@ -492,243 +210,23 @@ function showError(text) {
 
             console.error(error);
 
-            message.className =
-                "error";
+            showMessage(
 
+                "حدث خطأ:<br>" +
+                error.code +
+                "<br>" +
+                error.message,
 
-            if (
-                error.code ===
-                "auth/email-already-in-use"
-            ) {
-
-                message.textContent =
-                    "حدث تعارض أثناء إنشاء الحساب، حاول مرة أخرى.";
-
-            }
-
-            else if (
-                error.code ===
-                "auth/invalid-email"
-            ) {
-
-                message.textContent =
-                    "حدث خطأ في بيانات الحساب.";
-
-            }
-
-            else if (
-                error.code ===
-                "auth/weak-password"
-            ) {
-
-                message.textContent =
-                    "كلمة المرور ضعيفة.";
-
-            }
-
-            else {
-
-                message.textContent =
-                    "حدث خطأ أثناء إنشاء الحساب.";
-
-                console.error(
-                    error.message
-                );
-            }
+                "error"
+            );
 
         }
 
 
         createButton.disabled = false;
 
+        createButton.textContent =
+            "فتح الحساب";
+
     }
 );
-    if (username.length < 3) {
-
-        message.className = "error";
-
-        message.textContent =
-            "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.";
-
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        message.className = "error";
-
-        message.textContent =
-            "كلمة المرور يجب أن تكون 6 أحرف أو أرقام على الأقل.";
-
-        return;
-    }
-
-
-    if (password !== confirmPassword) {
-
-        message.className = "error";
-
-        message.textContent =
-            "كلمتا المرور غير متطابقتين.";
-
-        return;
-    }
-
-
-    createButton.disabled = true;
-
-    message.className = "";
-
-    message.textContent =
-        "جاري إنشاء الحساب...";
-
-
-    try {
-
-        // ===========================
-        // Generate unique account
-        // ===========================
-
-        let accountNumber;
-
-        let exists = true;
-
-        while (exists) {
-
-            accountNumber =
-                generateAccountNumber();
-
-            exists =
-                await accountNumberExists(
-                    accountNumber
-                );
-
-        }
-
-
-        // ===========================
-        // Create Firebase Auth User
-        // ===========================
-
-        /*
-         * Firebase Authentication يحتاج Email.
-         * سننشئ Email داخليًا باستخدام رقم الحساب.
-         */
-
-        const internalEmail =
-            accountNumber +
-            "@bok-ped.firebaseapp.com";
-
-
-        const userCredential =
-            await createUserWithEmailAndPassword(
-                auth,
-                internalEmail,
-                password
-            );
-
-
-        const uid =
-            userCredential.user.uid;
-
-
-        // ===========================
-        // Save User Data
-        // ===========================
-
-        await set(
-            ref(
-                db,
-                "accounts/" + accountNumber
-            ),
-            {
-
-                username: username,
-
-                accountNumber:
-                    accountNumber,
-
-                uid: uid
-
-            }
-        );
-
-
-        // ===========================
-        // Success
-        // ===========================
-
-        message.className =
-            "success";
-
-        message.innerHTML = `
-            تم إنشاء الحساب بنجاح 🎉
-
-            <div class="account-box">
-
-                <div>
-                    اسم المستخدم
-                </div>
-
-                <strong>
-                    ${username}
-                </strong>
-
-                <br><br>
-
-                <div>
-                    رقم الحساب
-                </div>
-
-                <div class="account-number">
-                    ${accountNumber}
-                </div>
-
-                <p style="margin-top:15px;">
-                    احتفظ برقم الحساب، ستحتاجه
-                    لتسجيل الدخول من التطبيق.
-                </p>
-
-            </div>
-        `;
-
-
-        usernameInput.value = "";
-
-        passwordInput.value = "";
-
-        confirmPasswordInput.value = "";
-
-
-    } catch (error) {
-
-        console.error(error);
-
-
-        message.className =
-            "error";
-
-
-        if (
-            error.code ===
-            "auth/email-already-in-use"
-        ) {
-
-            message.textContent =
-                "حدث تعارض، حاول إنشاء الحساب مرة أخرى.";
-
-        } else {
-
-            message.textContent =
-                "حدث خطأ أثناء إنشاء الحساب: " +
-                error.message;
-
-        }
-
-    }
-
-
-    createButton.disabled = false;
-
-});
