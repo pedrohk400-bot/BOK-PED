@@ -8,14 +8,13 @@ import {
 import {
     getDatabase,
     ref,
-    set,
-    get
+    set
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
-// ========================================
-// Firebase
-// ========================================
+// ================================
+// Firebase Configuration
+// ================================
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
@@ -27,6 +26,11 @@ const firebaseConfig = {
     measurementId: "G-26SMZR0QCC"
 };
 
+
+// ================================
+// Firebase Start
+// ================================
+
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
@@ -34,9 +38,9 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 
-// ========================================
-// عناصر الصفحة
-// ========================================
+// ================================
+// الصفحة
+// ================================
 
 const usernameInput =
     document.getElementById("username");
@@ -54,59 +58,257 @@ const message =
     document.getElementById("message");
 
 
-// ========================================
-// توليد رقم حساب من 7 أرقام
-// ========================================
+// ================================
+// التأكد أن Firebase اشتغل
+// ================================
+
+if (!createButton) {
+
+    console.error(
+        "زر إنشاء الحساب غير موجود في index.html"
+    );
+
+} else {
+
+    createButton.addEventListener(
+        "click",
+        createAccount
+    );
+
+}
+
+
+// ================================
+// توليد رقم حساب 7 أرقام
+// ================================
 
 function generateAccountNumber() {
 
     return Math.floor(
-        1000000 + Math.random() * 9000000
+        1000000 +
+        Math.random() * 9000000
     ).toString();
 
 }
 
 
-// ========================================
-// التحقق من عدم تكرار رقم الحساب
-// ========================================
+// ================================
+// إنشاء الحساب
+// ================================
 
-async function generateUniqueAccountNumber() {
+async function createAccount() {
 
-    let accountNumber;
-    let exists = true;
+    const username =
+        usernameInput.value.trim();
 
-    while (exists) {
+    const password =
+        passwordInput.value;
 
-        accountNumber =
-            generateAccountNumber();
+    const confirmPassword =
+        confirmPasswordInput.value;
 
-        const snapshot = await get(
-            ref(
-                db,
-                "accountNumbers/" + accountNumber
-            )
+
+    // ----------------------------
+    // التحقق
+    // ----------------------------
+
+    if (username.length < 3) {
+
+        showError(
+            "اسم المستخدم يجب أن يكون 3 أحرف على الأقل."
         );
 
-        exists = snapshot.exists();
+        return;
     }
 
-    return accountNumber;
+
+    if (password.length < 6) {
+
+        showError(
+            "كلمة المرور يجب أن تكون 6 أحرف على الأقل."
+        );
+
+        return;
+    }
+
+
+    if (password !== confirmPassword) {
+
+        showError(
+            "كلمتا المرور غير متطابقتين."
+        );
+
+        return;
+    }
+
+
+    // ----------------------------
+    // تحميل
+    // ----------------------------
+
+    createButton.disabled = true;
+
+    createButton.textContent =
+        "جاري إنشاء الحساب...";
+
+    message.textContent = "";
+
+
+    try {
+
+        // ----------------------------
+        // رقم الحساب
+        // ----------------------------
+
+        const accountNumber =
+            generateAccountNumber();
+
+
+        // ----------------------------
+        // بريد داخلي لـ Firebase
+        // ----------------------------
+
+        const email =
+            accountNumber +
+            "@bok-ped.firebaseapp.com";
+
+
+        // ----------------------------
+        // إنشاء مستخدم Firebase
+        // ----------------------------
+
+        const result =
+            await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+
+        const uid =
+            result.user.uid;
+
+
+        // ----------------------------
+        // حفظ بيانات المستخدم
+        // ----------------------------
+
+        await set(
+            ref(
+                db,
+                "users/" + uid
+            ),
+            {
+
+                username:
+                    username,
+
+                accountNumber:
+                    accountNumber
+
+            }
+        );
+
+
+        // ----------------------------
+        // حفظ رقم الحساب
+        // ----------------------------
+
+        await set(
+            ref(
+                db,
+                "accountNumbers/" +
+                accountNumber
+            ),
+            {
+
+                uid:
+                    uid
+
+            }
+        );
+
+
+        // ----------------------------
+        // نجاح
+        // ----------------------------
+
+        message.className =
+            "success";
+
+        message.innerHTML =
+
+            "<div>تم إنشاء الحساب بنجاح 🎉</div>" +
+
+            "<div class='account-box'>" +
+
+            "<div>اسم المستخدم</div>" +
+
+            "<strong>" +
+            username +
+            "</strong>" +
+
+            "<br><br>" +
+
+            "<div>رقم الحساب</div>" +
+
+            "<div class='account-number'>" +
+            accountNumber +
+            "</div>" +
+
+            "</div>" +
+
+            "<p style='margin-top:15px;'>" +
+            "احتفظ برقم الحساب وكلمة المرور." +
+            "</p>";
+
+
+        usernameInput.value = "";
+
+        passwordInput.value = "";
+
+        confirmPasswordInput.value = "";
+
+
+    } catch (error) {
+
+        console.error(
+            "Firebase Error:",
+            error
+        );
+
+
+        showError(
+            "خطأ: " +
+            error.code +
+            "<br>" +
+            error.message
+        );
+
+    }
+
+
+    createButton.disabled = false;
+
+    createButton.textContent =
+        "فتح الحساب";
+
 }
 
 
-// ========================================
-// إنشاء الحساب
-// ========================================
+// ================================
+// عرض الخطأ
+// ================================
 
-createButton.addEventListener(
-    "click",
-    async function () {
+function showError(text) {
 
-        const username =
-            usernameInput.value.trim();
+    message.className =
+        "error";
 
-        const password =
+    message.innerHTML =
+        text;
+
+        }        const password =
             passwordInput.value;
 
         const confirmPassword =
