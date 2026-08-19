@@ -1,132 +1,749 @@
+/* =========================================
+   BOK PED — iOS Premium Dark UI
+   ========================================= */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: #0d1117;
-    color: white;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color: #ffffff;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     padding: 20px;
+
+    overflow-x: hidden;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(255, 23, 68, 0.16),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(120, 70, 255, 0.14),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #05070a 0%,
+            #0d1117 45%,
+            #090b10 100%
+        );
+
+    position: relative;
 }
+
+
+/* =========================================
+   Animated Background
+   ========================================= */
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+
+    filter: blur(70px);
+    opacity: 0.25;
+
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::before {
+    background: #ff1744;
+    top: -100px;
+    left: -100px;
+
+    animation: floatGlow 8s ease-in-out infinite;
+}
+
+body::after {
+    background: #6c5ce7;
+    bottom: -100px;
+    right: -100px;
+
+    animation: floatGlow2 10s ease-in-out infinite;
+}
+
+@keyframes floatGlow {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(60px, 40px) scale(1.15);
+    }
+}
+
+@keyframes floatGlow2 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(-50px, -40px) scale(1.2);
+    }
+}
+
+
+/* =========================================
+   Main Container
+   ========================================= */
 
 .container {
     width: 100%;
-    max-width: 420px;
+    max-width: 430px;
+
     text-align: center;
+
+    animation: pageEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================
+   Logo
+   ========================================= */
 
 .logo {
-    font-size: 38px;
-    font-weight: 800;
-    letter-spacing: 2px;
+    font-size: 42px;
+    font-weight: 900;
+
+    letter-spacing: 3px;
+
     margin-bottom: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #ffffff 35%,
+            #ff1744 100%
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    text-shadow:
+        0 0 35px rgba(255, 23, 68, 0.18);
+
+    animation: logoIn 0.9s ease;
 }
+
+@keyframes logoIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+        filter: blur(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+}
+
+
+/* =========================================
+   Subtitle
+   ========================================= */
 
 .subtitle {
-    color: #9ca3af;
-    font-size: 16px;
-    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.58);
+
+    font-size: 15px;
+    font-weight: 500;
+
+    letter-spacing: 0.3px;
+
+    margin-bottom: 26px;
+
+    animation: fadeUp 1s ease 0.15s both;
 }
 
-.card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 24px;
-    padding: 25px;
-    text-align: right;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
+
+/* =========================================
+   Main Card
+   ========================================= */
+
+.card {
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.085),
+            rgba(255, 255, 255, 0.035)
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    border-radius: 30px;
+
+    padding: 28px;
+
+    text-align: right;
+
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    overflow: hidden;
+
+    animation:
+        cardEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+
+    transition:
+        transform 0.4s ease,
+        box-shadow 0.4s ease;
+}
+
+.card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 15%;
+    right: 15%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.35),
+            transparent
+        );
+}
+
+.card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    top: -120px;
+    right: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 23, 68, 0.12);
+
+    filter: blur(40px);
+
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 40px 90px rgba(0, 0, 0, 0.65),
+        0 0 50px rgba(255, 23, 68, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+@keyframes cardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(35px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================
+   Labels
+   ========================================= */
 
 label {
     display: block;
-    margin: 15px 0 8px;
-    font-size: 14px;
-    color: #d1d5db;
+
+    margin: 18px 4px 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    letter-spacing: 0.2px;
+
+    transition:
+        color 0.25s ease,
+        transform 0.25s ease;
 }
+
+
+/* =========================================
+   Inputs
+   ========================================= */
 
 input {
     width: 100%;
-    height: 52px;
-    border: 1px solid #30363d;
-    border-radius: 14px;
-    background: #0d1117;
-    color: white;
-    padding: 0 15px;
+    height: 55px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    border-radius: 17px;
+
+    background:
+        rgba(5, 7, 10, 0.55);
+
+    color: #ffffff;
+
+    padding: 0 17px;
+
     font-size: 15px;
+    font-family: inherit;
+
     outline: none;
+
     direction: rtl;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    transition:
+        border-color 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.25s ease;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.30);
+}
+
+input:hover {
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
 input:focus {
-    border-color: #ff1744;
+    border-color: rgba(255, 23, 68, 0.85);
+
+    background:
+        rgba(10, 12, 17, 0.80);
+
+    box-shadow:
+        0 0 0 4px rgba(255, 23, 68, 0.08),
+        0 8px 25px rgba(255, 23, 68, 0.08);
+
+    transform: translateY(-1px);
 }
 
+input:focus + label {
+    color: #ff1744;
+}
+
+
+/* =========================================
+   Button
+   ========================================= */
+
 button {
+    position: relative;
+
     width: 100%;
-    height: 54px;
-    margin-top: 25px;
+    height: 55px;
+
+    margin-top: 26px;
+
     border: none;
-    border-radius: 15px;
-    background: #d50000;
-    color: white;
-    font-size: 17px;
-    font-weight: bold;
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff1744 0%,
+            #d50000 55%,
+            #b00020 100%
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    letter-spacing: 0.2px;
+
     cursor: pointer;
-    transition: 0.2s;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 12px 30px rgba(213, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+button::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -100%;
+
+    width: 60%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.25),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    transition: left 0.6s ease;
+}
+
+button:hover::before {
+    left: 140%;
 }
 
 button:hover {
     transform: translateY(-2px);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 16px 38px rgba(213, 0, 0, 0.38),
+        0 0 25px rgba(255, 23, 68, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+button:active {
+    transform: scale(0.97);
+
+    box-shadow:
+        0 6px 18px rgba(213, 0, 0, 0.25);
 }
 
 button:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.2);
 }
+
+
+/* =========================================
+   Message
+   ========================================= */
 
 #message {
     text-align: center;
+
     margin-top: 18px;
+
     font-size: 14px;
+
     line-height: 1.7;
+
+    font-weight: 500;
+
+    animation: messageIn 0.4s ease;
+}
+
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .success {
-    color: #22c55e;
+    color: #30d158;
+
+    text-shadow:
+        0 0 15px rgba(48, 209, 88, 0.20);
 }
 
 .error {
-    color: #ef4444;
+    color: #ff453a;
+
+    text-shadow:
+        0 0 15px rgba(255, 69, 58, 0.20);
 }
+
+
+/* =========================================
+   Account Box
+   ========================================= */
 
 .account-box {
     margin-top: 20px;
-    padding: 18px;
-    border-radius: 16px;
-    background: #0d1117;
-    border: 1px solid #30363d;
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.055),
+            rgba(255, 255, 255, 0.025)
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.09);
+
     text-align: center;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 10px 30px rgba(0, 0, 0, 0.25);
+
+    animation: accountIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+@keyframes accountIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================
+   Account Number
+   ========================================= */
 
 .account-number {
     font-size: 30px;
-    font-weight: bold;
+
+    font-weight: 800;
+
     letter-spacing: 4px;
+
     margin-top: 8px;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 0 25px rgba(255, 255, 255, 0.10);
+
+    animation: numberGlow 2.5s ease-in-out infinite;
 }
 
+@keyframes numberGlow {
+    0%,
+    100% {
+        text-shadow:
+            0 0 20px rgba(255, 255, 255, 0.08);
+    }
+
+    50% {
+        text-shadow:
+            0 0 28px rgba(255, 23, 68, 0.18);
+    }
+}
+
+
+/* =========================================
+   Selection
+   ========================================= */
+
+::selection {
+    background: rgba(255, 23, 68, 0.35);
+    color: #ffffff;
+}
+
+
+/* =========================================
+   Scrollbar
+   ========================================= */
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #080a0e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 23, 68, 0.55);
+}
+
+
+/* =========================================
+   Mobile
+   ========================================= */
+
 @media (max-width: 480px) {
+
+    body {
+        padding: 16px;
+        align-items: center;
+    }
+
+    .container {
+        max-width: 100%;
+    }
+
     .logo {
-        font-size: 32px;
+        font-size: 34px;
+        letter-spacing: 2.5px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+        margin-bottom: 20px;
     }
 
     .card {
-        padding: 20px;
+        padding: 22px 18px;
+        border-radius: 25px;
+    }
+
+    input {
+        height: 53px;
+        border-radius: 16px;
+    }
+
+    button {
+        height: 53px;
+        border-radius: 16px;
+    }
+
+    .account-box {
+        border-radius: 18px;
+    }
+
+    .account-number {
+        font-size: 25px;
+        letter-spacing: 3px;
     }
 }
+
+
+/* =========================================
+   Very Small Screens
+   ========================================= */
+
+@media (max-width: 350px) {
+
+    body {
+        padding: 12px;
+    }
+
+    .logo {
+        font-size: 30px;
+    }
+
+    .card {
+        padding: 18px 15px;
+    }
+
+    .account-number {
+        font-size: 22px;
+        letter-spacing: 2px;
+    }
+}
+
+
+/* =========================================
+   Reduce Motion
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    }
