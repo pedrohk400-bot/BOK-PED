@@ -17,9 +17,8 @@
 
     <title>BOK PED - فتح حساب</title>
 
-    <!-- ==============================
-         الخط
-    =============================== -->
+
+    <!-- الخط -->
 
     <link
         rel="preconnect"
@@ -28,7 +27,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -37,10 +36,6 @@
         rel="stylesheet"
     >
 
-
-    <!-- ==============================
-         CSS
-    =============================== -->
 
     <style>
 
@@ -89,9 +84,7 @@
         }
 
 
-        /* ==============================
-           الخلفية
-        =============================== */
+        /* الخلفية */
 
         .background-circle {
 
@@ -130,9 +123,7 @@
         }
 
 
-        /* ==============================
-           الحاوية
-        =============================== */
+        /* الحاوية */
 
         .container {
 
@@ -144,9 +135,7 @@
         }
 
 
-        /* ==============================
-           البطاقة
-        =============================== */
+        /* البطاقة */
 
         .card {
 
@@ -195,9 +184,7 @@
         }
 
 
-        /* ==============================
-           الشعار
-        =============================== */
+        /* الشعار */
 
         .logo {
 
@@ -232,9 +219,7 @@
         }
 
 
-        /* ==============================
-           العنوان
-        =============================== */
+        /* العنوان */
 
         .title {
 
@@ -260,9 +245,7 @@
         }
 
 
-        /* ==============================
-           الحقول
-        =============================== */
+        /* الحقول */
 
         .input-group {
 
@@ -310,7 +293,8 @@
         }
 
 
-        input {
+        input,
+        select {
 
             width: 100%;
 
@@ -334,7 +318,8 @@
 
             color: #ffffff;
 
-            font-family: "Cairo", sans-serif;
+            font-family:
+                "Cairo", sans-serif;
 
             font-size: 15px;
 
@@ -350,7 +335,8 @@
         }
 
 
-        input:focus {
+        input:focus,
+        select:focus {
 
             border-color:
                 rgba(0,122,255,0.75);
@@ -364,9 +350,99 @@
         }
 
 
-        /* ==============================
-           زر فتح الحساب
-        =============================== */
+        /* اختيار الاشتراك */
+
+        .subscription-wrapper {
+
+            position: relative;
+        }
+
+
+        .subscription-wrapper .input-icon {
+
+            z-index: 2;
+        }
+
+
+        select {
+
+            appearance: none;
+            -webkit-appearance: none;
+
+            cursor: pointer;
+
+            padding-right: 50px;
+        }
+
+
+        select option {
+
+            background: #161b22;
+
+            color: #ffffff;
+        }
+
+
+        .select-arrow {
+
+            position: absolute;
+
+            left: 17px;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            font-size: 13px;
+
+            color:
+                rgba(255,255,255,0.55);
+
+            pointer-events: none;
+        }
+
+
+        /* معلومات الاشتراك */
+
+        .subscription-info {
+
+            margin-top: -5px;
+
+            margin-bottom: 18px;
+
+            padding: 13px 15px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(0,122,255,0.07);
+
+            border:
+                1px solid
+                rgba(0,122,255,0.15);
+
+            color:
+                rgba(255,255,255,0.62);
+
+            font-size: 12px;
+
+            line-height: 1.8;
+
+            text-align: center;
+
+            transition:
+                0.25s ease;
+        }
+
+
+        .subscription-info strong {
+
+            color: #ffffff;
+        }
+
+
+        /* زر فتح الحساب */
 
         #createAccount {
 
@@ -439,9 +515,7 @@
         }
 
 
-        /* ==============================
-           الرسائل
-        =============================== */
+        /* الرسائل */
 
         #message {
 
@@ -537,9 +611,7 @@
         }
 
 
-        /* ==============================
-           نجاح الحساب
-        =============================== */
+        /* نجاح الحساب */
 
         .success-title {
 
@@ -603,6 +675,18 @@
         }
 
 
+        .subscription-end {
+
+            margin-top: 8px;
+
+            font-size: 14px;
+
+            color: #34c759;
+
+            font-weight: 700;
+        }
+
+
         .success-text {
 
             margin-top: 14px;
@@ -614,9 +698,7 @@
         }
 
 
-        /* ==============================
-           أسفل البطاقة
-        =============================== */
+        /* أسفل البطاقة */
 
         .footer {
 
@@ -631,9 +713,7 @@
         }
 
 
-        /* ==============================
-           الهاتف
-        =============================== */
+        /* الهاتف */
 
         @media (max-width: 420px) {
 
@@ -644,6 +724,7 @@
             .card {
                 padding:
                     28px 19px 23px;
+
                 border-radius: 24px;
             }
 
@@ -659,6 +740,7 @@
             }
 
             input,
+            select,
             #createAccount {
                 height: 55px;
             }
@@ -672,7 +754,7 @@
 <body>
 
 
-    <!-- خلفية -->
+    <!-- الخلفية -->
 
     <div class="background-circle circle-one"></div>
 
@@ -765,6 +847,66 @@
             </div>
 
 
+            <!-- مدة الاشتراك -->
+
+            <div class="input-group">
+
+                <label
+                    class="input-label"
+                    for="subscription"
+                >
+                    مدة الاشتراك
+                </label>
+
+                <div class="subscription-wrapper">
+
+                    <span class="input-icon">
+                        🕐
+                    </span>
+
+                    <select id="subscription">
+
+                        <option value="day">
+                            يوم واحد
+                        </option>
+
+                        <option value="week">
+                            أسبوع واحد
+                        </option>
+
+                        <option value="month">
+                            شهر واحد
+                        </option>
+
+                        <option value="3months">
+                            3 شهور
+                        </option>
+
+                        <option value="12months">
+                            12 شهر
+                        </option>
+
+                    </select>
+
+                    <span class="select-arrow">
+                        ▼
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- معلومات الاشتراك -->
+
+            <div
+                id="subscriptionInfo"
+                class="subscription-info"
+            >
+                مدة الاشتراك: <strong>يوم واحد</strong>
+            </div>
+
+
             <!-- زر إنشاء الحساب -->
 
             <button
@@ -793,9 +935,7 @@
     </main>
 
 
-    <!-- ==============================
-         JavaScript
-    =============================== -->
+    <!-- JavaScript -->
 
     <script
         type="module"
@@ -805,4 +945,4 @@
 
 </body>
 
-                    </html>
+    </html>
