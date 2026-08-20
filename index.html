@@ -14,26 +14,34 @@ index.html
 
     <title>BOK-PED | فتح حساب</title>
 
+    <!-- CSS -->
     <link
         rel="stylesheet"
-        href="style.css?v=999"
+        href="./style.css?v=2026082001"
     >
 
 </head>
+
 
 <body>
 
     <div class="container">
 
+        <!-- الشعار -->
         <div class="logo">
             BOK-PED
         </div>
 
+
+        <!-- العنوان -->
         <p class="subtitle">
             فتح حساب جديد
         </p>
 
+
+        <!-- البطاقة -->
         <div class="card">
+
 
             <!-- اسم المستخدم -->
             <label for="username">
@@ -45,7 +53,9 @@ index.html
                 id="username"
                 placeholder="اكتب اسم المستخدم"
                 autocomplete="username"
+                required
             >
+
 
             <!-- كلمة المرور -->
             <label for="password">
@@ -57,20 +67,11 @@ index.html
                 id="password"
                 placeholder="اكتب كلمة المرور"
                 autocomplete="new-password"
+                required
             >
 
-            <!-- تأكيد كلمة المرور -->
-            <label for="confirmPassword">
-                تأكيد كلمة المرور
-            </label>
 
-            <input
-                type="password"
-                id="confirmPassword"
-                placeholder="أعد كتابة كلمة المرور"
-                autocomplete="new-password"
-            >
-
+            <!-- زر فتح الحساب -->
             <button
                 type="button"
                 id="createAccount"
@@ -78,17 +79,22 @@ index.html
                 فتح الحساب
             </button>
 
+
+            <!-- الرسالة -->
             <p id="message"></p>
+
 
         </div>
 
     </div>
 
-    <!-- JavaScript -->
+
+    <!-- Firebase / JavaScript -->
     <script
         type="module"
-        src="app.js?v=999"
+        src="./app.js?v=2026082001"
     ></script>
+
 
 </body>
 
