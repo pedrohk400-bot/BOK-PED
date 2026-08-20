@@ -1,3 +1,5 @@
+app.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
@@ -48,9 +50,6 @@ const usernameInput =
 const passwordInput =
     document.getElementById("password");
 
-const confirmPasswordInput =
-    document.getElementById("confirmPassword");
-
 const createButton =
     document.getElementById("createAccount");
 
@@ -99,14 +98,203 @@ createButton.addEventListener(
         const password =
             passwordInput.value;
 
-        const confirmPassword =
-            confirmPasswordInput.value;
-
 
         // -------------------------------
         // التحقق من اسم المستخدم
         // -------------------------------
 
+        if (username.length < 3) {
+
+            showMessage(
+                "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // -------------------------------
+        // التحقق من كلمة المرور
+        // -------------------------------
+
+        if (password.length < 6) {
+
+            showMessage(
+                "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // -------------------------------
+        // تعطيل الزر
+        // -------------------------------
+
+        createButton.disabled = true;
+
+        createButton.textContent =
+            "جاري إنشاء الحساب...";
+
+
+        try {
+
+            // -------------------------------
+            // إنشاء رقم حساب 7 أرقام
+            // -------------------------------
+
+            const accountNumber =
+                generateAccountNumber();
+
+
+            // -------------------------------
+            // بريد داخلي لـ Firebase
+            // -------------------------------
+
+            const email =
+                accountNumber +
+                "@bok-ped.firebaseapp.com";
+
+
+            // -------------------------------
+            // إنشاء مستخدم Firebase
+            // -------------------------------
+
+            const userCredential =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            const uid =
+                userCredential.user.uid;
+
+
+            // -------------------------------
+            // حفظ بيانات المستخدم
+            // -------------------------------
+
+            await set(
+                ref(
+                    db,
+                    "users/" + uid
+                ),
+                {
+
+                    username:
+                        username,
+
+                    accountNumber:
+                        accountNumber
+
+                }
+            );
+
+
+            // -------------------------------
+            // حفظ رقم الحساب
+            // -------------------------------
+
+            await set(
+                ref(
+                    db,
+                    "accountNumbers/" +
+                    accountNumber
+                ),
+                {
+
+                    uid:
+                        uid
+
+                }
+            );
+
+
+            // -------------------------------
+            // إظهار النتيجة
+            // -------------------------------
+
+            showMessage(
+
+                `
+                <div>
+                    تم إنشاء الحساب بنجاح 🎉
+                </div>
+
+                <div class="account-box">
+
+                    <div>
+                        اسم المستخدم
+                    </div>
+
+                    <strong>
+                        ${username}
+                    </strong>
+
+                    <br><br>
+
+                    <div>
+                        رقم الحساب
+                    </div>
+
+                    <div class="account-number">
+                        ${accountNumber}
+                    </div>
+
+                </div>
+
+                <p style="margin-top:15px;">
+                    احتفظ برقم الحساب وكلمة المرور.
+                </p>
+                `,
+
+                "success"
+            );
+
+
+            // -------------------------------
+            // تنظيف الحقول
+            // -------------------------------
+
+            usernameInput.value = "";
+
+            passwordInput.value = "";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            showMessage(
+
+                "حدث خطأ أثناء إنشاء الحساب:" +
+                "<br><br>" +
+                error.code +
+                "<br>" +
+                error.message,
+
+                "error"
+            );
+
+        }
+
+
+        // -------------------------------
+        // إعادة الزر
+        // -------------------------------
+
+        createButton.disabled = false;
+
+        createButton.textContent =
+            "فتح الحساب";
+
+    }
+);
         if (username.length < 3) {
 
             showMessage(
