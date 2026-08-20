@@ -59,7 +59,18 @@ index.html
                 autocomplete="new-password"
             >
 
-            <!-- زر فتح الحساب -->
+            <!-- تأكيد كلمة المرور -->
+            <label for="confirmPassword">
+                تأكيد كلمة المرور
+            </label>
+
+            <input
+                type="password"
+                id="confirmPassword"
+                placeholder="أعد كتابة كلمة المرور"
+                autocomplete="new-password"
+            >
+
             <button
                 type="button"
                 id="createAccount"
@@ -67,14 +78,13 @@ index.html
                 فتح الحساب
             </button>
 
-            <!-- الرسائل -->
             <p id="message"></p>
 
         </div>
 
     </div>
 
-    <!-- JavaScript / Firebase -->
+    <!-- JavaScript -->
     <script
         type="module"
         src="app.js?v=999"
