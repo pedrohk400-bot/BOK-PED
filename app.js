@@ -1,9 +1,13 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
 
 import {
     getAuth,
     createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
 
 import {
     getDatabase,
@@ -18,21 +22,40 @@ import {
 // =====================================================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
-    authDomain: "bok-ped.firebaseapp.com",
-    projectId: "bok-ped",
-    storageBucket: "bok-ped.firebasestorage.app",
-    messagingSenderId: "812838230843",
-    appId: "1:812838230843:web:f3bd5f59343db42b52b51e",
-    measurementId: "G-26SMZR0QCC"
+
+    apiKey:
+        "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
+
+    authDomain:
+        "bok-ped.firebaseapp.com",
+
+    projectId:
+        "bok-ped",
+
+    storageBucket:
+        "bok-ped.firebasestorage.app",
+
+    messagingSenderId:
+        "812838230843",
+
+    appId:
+        "1:812838230843:web:f3bd5f59343db42b52b51e",
+
+    measurementId:
+        "G-26SMZR0QCC"
 };
 
 
-const app = initializeApp(firebaseConfig);
+const app =
+    initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
 
-const db = getDatabase(app);
+const auth =
+    getAuth(app);
+
+
+const db =
+    getDatabase(app);
 
 
 // =====================================================
@@ -42,11 +65,22 @@ const db = getDatabase(app);
 const usernameInput =
     document.getElementById("username");
 
+
 const passwordInput =
     document.getElementById("password");
 
+
+const subscriptionInput =
+    document.getElementById("subscription");
+
+
+const subscriptionInfo =
+    document.getElementById("subscriptionInfo");
+
+
 const createButton =
     document.getElementById("createAccount");
+
 
 const message =
     document.getElementById("message");
@@ -59,6 +93,8 @@ const message =
 if (
     !usernameInput ||
     !passwordInput ||
+    !subscriptionInput ||
+    !subscriptionInfo ||
     !createButton ||
     !message
 ) {
@@ -66,20 +102,165 @@ if (
     console.error(
         "خطأ: بعض عناصر HTML غير موجودة."
     );
-
 }
 
 
 // =====================================================
-// عرض رسالة
+// عرض الرسالة
 // =====================================================
 
-function showMessage(text, type = "") {
+function showMessage(
+    text,
+    type = ""
+) {
 
     message.className = type;
 
     message.innerHTML = text;
+}
 
+
+// =====================================================
+// أسماء الاشتراكات
+// =====================================================
+
+const subscriptionNames = {
+
+    day:
+        "يوم واحد",
+
+    week:
+        "أسبوع واحد",
+
+    month:
+        "شهر واحد",
+
+    "3months":
+        "3 شهور",
+
+    "12months":
+        "12 شهر"
+};
+
+
+// =====================================================
+// تحديث معلومات الاشتراك عند الاختيار
+// =====================================================
+
+function updateSubscriptionInfo() {
+
+    const type =
+        subscriptionInput.value;
+
+    const name =
+        subscriptionNames[type] ||
+        "يوم واحد";
+
+
+    subscriptionInfo.innerHTML =
+        `مدة الاشتراك: <strong>${name}</strong>`;
+}
+
+
+subscriptionInput.addEventListener(
+    "change",
+    updateSubscriptionInfo
+);
+
+
+// تشغيلها أول مرة
+
+updateSubscriptionInfo();
+
+
+// =====================================================
+// حساب تاريخ انتهاء الاشتراك
+// =====================================================
+
+function calculateSubscriptionEnd(
+    startDate,
+    subscriptionType
+) {
+
+    const endDate =
+        new Date(startDate.getTime());
+
+
+    switch (subscriptionType) {
+
+        case "day":
+
+            endDate.setDate(
+                endDate.getDate() + 1
+            );
+
+            break;
+
+
+        case "week":
+
+            endDate.setDate(
+                endDate.getDate() + 7
+            );
+
+            break;
+
+
+        case "month":
+
+            endDate.setMonth(
+                endDate.getMonth() + 1
+            );
+
+            break;
+
+
+        case "3months":
+
+            endDate.setMonth(
+                endDate.getMonth() + 3
+            );
+
+            break;
+
+
+        case "12months":
+
+            endDate.setFullYear(
+                endDate.getFullYear() + 1
+            );
+
+            break;
+
+
+        default:
+
+            throw new Error(
+                "مدة الاشتراك غير صحيحة."
+            );
+    }
+
+
+    return endDate;
+}
+
+
+// =====================================================
+// تنسيق التاريخ للعرض
+// =====================================================
+
+function formatDate(date) {
+
+    return new Intl.DateTimeFormat(
+        "ar-EG",
+        {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(date);
 }
 
 
@@ -93,7 +274,6 @@ function generateAccountNumber() {
         1000000 +
         Math.random() * 9000000
     ).toString();
-
 }
 
 
@@ -104,6 +284,7 @@ function generateAccountNumber() {
 async function getAvailableAccountNumber() {
 
     const maxAttempts = 30;
+
 
     for (
         let attempt = 0;
@@ -127,21 +308,16 @@ async function getAvailableAccountNumber() {
             await get(accountRef);
 
 
-        // الرقم غير موجود
-
         if (!snapshot.exists()) {
 
             return accountNumber;
-
         }
-
     }
 
 
     throw new Error(
         "لم يتم العثور على رقم حساب متاح."
     );
-
 }
 
 
@@ -156,8 +332,13 @@ createButton.addEventListener(
         const username =
             usernameInput.value.trim();
 
+
         const password =
             passwordInput.value;
+
+
+        const subscriptionType =
+            subscriptionInput.value;
 
 
         // ---------------------------------------------
@@ -191,6 +372,25 @@ createButton.addEventListener(
 
 
         // ---------------------------------------------
+        // التحقق من مدة الاشتراك
+        // ---------------------------------------------
+
+        if (
+            !subscriptionNames[
+                subscriptionType
+            ]
+        ) {
+
+            showMessage(
+                "يرجى اختيار مدة اشتراك صحيحة.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ---------------------------------------------
         // تعطيل الزر
         // ---------------------------------------------
 
@@ -199,6 +399,7 @@ createButton.addEventListener(
         createButton.textContent =
             "جاري إنشاء الحساب...";
 
+
         showMessage(
             "جاري إنشاء الحساب...",
             "loading"
@@ -206,6 +407,25 @@ createButton.addEventListener(
 
 
         try {
+
+            // =========================================
+            // وقت بداية الاشتراك
+            // =========================================
+
+            const subscriptionStart =
+                new Date();
+
+
+            // =========================================
+            // حساب نهاية الاشتراك
+            // =========================================
+
+            const subscriptionEnd =
+                calculateSubscriptionEnd(
+                    subscriptionStart,
+                    subscriptionType
+                );
+
 
             // =========================================
             // إنشاء رقم حساب فريد
@@ -261,7 +481,29 @@ createButton.addEventListener(
                         uid,
 
                     createdAt:
-                        Date.now()
+                        Date.now(),
+
+
+                    // ================================
+                    // بيانات الاشتراك
+                    // ================================
+
+                    subscriptionType:
+                        subscriptionType,
+
+                    subscriptionName:
+                        subscriptionNames[
+                            subscriptionType
+                        ],
+
+                    subscriptionStart:
+                        subscriptionStart.getTime(),
+
+                    subscriptionEnd:
+                        subscriptionEnd.getTime(),
+
+                    active:
+                        true
 
                 }
             );
@@ -307,6 +549,7 @@ createButton.addEventListener(
                         ${escapeHTML(username)}
                     </strong>
 
+
                     <div class="account-label">
                         رقم الحساب
                     </div>
@@ -315,7 +558,30 @@ createButton.addEventListener(
                         ${accountNumber}
                     </div>
 
+
+                    <div class="account-label">
+                        مدة الاشتراك
+                    </div>
+
+                    <strong>
+                        ${subscriptionNames[
+                            subscriptionType
+                        ]}
+                    </strong>
+
+
+                    <div class="account-label">
+                        ينتهي الاشتراك في
+                    </div>
+
+                    <div class="subscription-end">
+                        ${formatDate(
+                            subscriptionEnd
+                        )}
+                    </div>
+
                 </div>
+
 
                 <p class="success-text">
                     احتفظ برقم الحساب وكلمة المرور.
@@ -331,6 +597,11 @@ createButton.addEventListener(
             usernameInput.value = "";
 
             passwordInput.value = "";
+
+            subscriptionInput.value =
+                "day";
+
+            updateSubscriptionInfo();
 
 
         } catch (error) {
@@ -413,11 +684,9 @@ createButton.addEventListener(
 
                         errorMessage =
                             error.message;
-
                     }
 
                     break;
-
             }
 
 
@@ -454,5 +723,4 @@ function escapeHTML(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
-                }
+                    }
