@@ -1,3 +1,5 @@
+app.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
@@ -45,9 +47,6 @@ document.getElementById("username");
 const passwordInput =
 document.getElementById("password");
 
-const confirmPasswordInput =
-document.getElementById("confirmPassword");
-
 const createButton =
 document.getElementById("createAccount");
 
@@ -93,9 +92,6 @@ const username =
     const password =  
         passwordInput.value;  
 
-    const confirmPassword =  
-        confirmPasswordInput.value;  
-
 
     // -------------------------------  
     // التحقق من اسم المستخدم  
@@ -120,21 +116,6 @@ const username =
 
         showMessage(  
             "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",  
-            "error"  
-        );  
-
-        return;  
-    }  
-
-
-    // -------------------------------  
-    // تأكيد كلمة المرور  
-    // -------------------------------  
-
-    if (password !== confirmPassword) {  
-
-        showMessage(  
-            "كلمتا المرور غير متطابقتين.",  
             "error"  
         );  
 
@@ -277,8 +258,6 @@ const username =
 
         passwordInput.value = "";  
 
-        confirmPasswordInput.value = "";  
-
 
     } catch (error) {  
 
@@ -310,218 +289,4 @@ const username =
 
 }
 
-);
-            return;
-        }
-
-
-        // ================================
-        // بدء العملية
-        // ================================
-
-        createButton.disabled = true;
-
-        createButton.textContent =
-            "جاري إنشاء الحساب...";
-
-        message.innerHTML =
-            "جاري الاتصال بـ Firebase...";
-
-
-        try {
-
-            // ============================
-            // إنشاء رقم الحساب
-            // ============================
-
-            const accountNumber =
-                await generateAccountNumber();
-
-
-            // ============================
-            // بريد داخلي فريد
-            // ============================
-
-            const email =
-                accountNumber +
-                "@bok-ped.firebaseapp.com";
-
-
-            message.innerHTML =
-                "جاري إنشاء الحساب...";
-
-
-            // ============================
-            // Firebase Authentication
-            // ============================
-
-            const credential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            const uid =
-                credential.user.uid;
-
-
-            // ============================
-            // حفظ المستخدم
-            // ============================
-
-            await set(
-                ref(
-                    db,
-                    "users/" + uid
-                ),
-                {
-                    username: username,
-                    accountNumber: accountNumber
-                }
-            );
-
-
-            // ============================
-            // حفظ رقم الحساب
-            // ============================
-
-            await set(
-                ref(
-                    db,
-                    "accountNumbers/" +
-                    accountNumber
-                ),
-                {
-                    uid: uid
-                }
-            );
-
-
-            // ============================
-            // النجاح
-            // ============================
-
-            message.innerHTML = `
-
-                <div>
-                    🎉 تم إنشاء الحساب بنجاح
-                </div>
-
-                <br>
-
-                <div>
-                    اسم المستخدم
-                </div>
-
-                <strong>
-                    ${username}
-                </strong>
-
-                <br><br>
-
-                <div>
-                    رقم الحساب
-                </div>
-
-                <strong>
-                    ${accountNumber}
-                </strong>
-
-                <br><br>
-
-                <div>
-                    كلمة المرور
-                </div>
-
-                <strong>
-                    ${password}
-                </strong>
-
-                <p style="margin-top:15px;">
-                    احتفظ ببيانات حسابك.
-                </p>
-
-            `;
-
-
-            usernameInput.value = "";
-            passwordInput.value = "";
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            let text =
-                error.message ||
-                "حدث خطأ غير معروف";
-
-
-            if (
-                error.code ===
-                "auth/email-already-in-use"
-            ) {
-
-                text =
-                    "رقم الحساب موجود بالفعل، حاول مرة أخرى.";
-
-            }
-
-            else if (
-                error.code ===
-                "auth/operation-not-allowed"
-            ) {
-
-                text =
-                    "يجب تفعيل تسجيل الدخول باستخدام Email/Password من Firebase Authentication.";
-
-            }
-
-            else if (
-                error.code ===
-                "auth/invalid-credential"
-            ) {
-
-                text =
-                    "بيانات Firebase غير صحيحة.";
-
-            }
-
-            else if (
-                error.code ===
-                "auth/network-request-failed"
-            ) {
-
-                text =
-                    "تحقق من اتصال الإنترنت.";
-
-            }
-
-            else if (
-                error.code ===
-                "PERMISSION_DENIED"
-            ) {
-
-                text =
-                    "Firebase Realtime Database يمنع حفظ البيانات. راجع Rules.";
-
-            }
-
-
-            message.innerHTML =
-                "❌ فشل إنشاء الحساب" +
-                "<br><br>" +
-                text;
-
-        }
-
-
-        createButton.disabled = false;
-
-        createButton.textContent =
-            "فتح الحساب";
-
-    }
 );
