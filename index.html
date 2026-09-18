@@ -2,337 +2,199 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="theme-color"
-        content="#070a10"
-    >
+    <meta name="theme-color"
+          content="#070a10">
 
     <title>BOK-PED</title>
 
-
-    <!-- CSS الحالي -->
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
+<div class="container">
 
-    <!-- =====================================================
-         التطبيق
-    ====================================================== -->
+    <!-- LOGIN -->
 
-    <main class="container">
+    <div id="loginSection" class="card">
 
+        <div class="logo">
+            BOK-PED
+        </div>
 
-        <!-- =================================================
-             شاشة تسجيل الدخول
-        ================================================== -->
+        <h2>
+            تسجيل الدخول
+        </h2>
 
-        <section
-            id="loginSection"
-            class="card"
-        >
-
-            <div class="logo">
-
-                BOK-PED
-
-            </div>
+        <p class="subtitle">
+            الدخول إلى لوحة فتح الحسابات
+        </p>
 
 
-            <h1>
+        <div class="input-group">
 
-                تسجيل الدخول
+            <label>
+                البريد الإلكتروني
+            </label>
 
-            </h1>
+            <input
+                id="adminEmail"
+                type="email"
+                value="website-reader@bok-ped.com"
+                placeholder="البريد الإلكتروني"
+                autocomplete="email"
+            >
 
-
-            <p class="subtitle">
-
-                الدخول إلى لوحة فتح الحسابات
-
-            </p>
-
-
-            <!-- البريد -->
-
-            <div class="input-group">
-
-                <label for="adminEmail">
-
-                    البريد الإلكتروني
-
-                </label>
-
-                <input
-                    type="email"
-                    id="adminEmail"
-                    placeholder="البريد الإلكتروني"
-                    autocomplete="username"
-                >
-
-            </div>
+        </div>
 
 
-            <!-- كلمة المرور -->
+        <div class="input-group">
 
-            <div class="input-group">
+            <label>
+                كلمة المرور
+            </label>
 
-                <label for="adminPassword">
+            <input
+                id="adminPassword"
+                type="password"
+                placeholder="كلمة المرور"
+                autocomplete="current-password"
+            >
 
-                    كلمة المرور
-
-                </label>
-
-                <input
-                    type="password"
-                    id="adminPassword"
-                    placeholder="كلمة المرور"
-                    autocomplete="current-password"
-                >
-
-            </div>
+        </div>
 
 
-            <!-- زر الدخول -->
+        <button id="loginButton"
+                type="button">
 
-            <button
-                id="loginButton"
+            تسجيل الدخول
+
+        </button>
+
+
+        <div id="loginMessage"
+             class="message">
+        </div>
+
+    </div>
+
+
+
+    <!-- ACCOUNT -->
+
+    <div id="accountSection"
+         class="card"
+         style="display:none;">
+
+        <div class="logo">
+            BOK-PED
+        </div>
+
+        <h2>
+            فتح حساب جديد
+        </h2>
+
+
+        <div class="input-group">
+
+            <label>
+                اسم العميل
+            </label>
+
+            <input
+                id="username"
+                type="text"
+                placeholder="اسم العميل"
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label>
+                كلمة المرور
+            </label>
+
+            <input
+                id="password"
+                type="password"
+                placeholder="كلمة مرور الحساب"
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label>
+                الاشتراك
+            </label>
+
+            <select id="subscription">
+
+                <option value="day">
+                    يوم واحد
+                </option>
+
+                <option value="week">
+                    أسبوع واحد
+                </option>
+
+                <option value="month">
+                    شهر واحد
+                </option>
+
+                <option value="3months">
+                    3 شهور
+                </option>
+
+                <option value="12months">
+                    12 شهر
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div id="subscriptionInfo"
+             class="subscription-info">
+        </div>
+
+
+        <button id="createAccount"
+                type="button">
+
+            فتح الحساب
+
+        </button>
+
+
+        <div id="message"
+             class="message">
+        </div>
+
+
+        <button id="logoutButton"
                 type="button"
-            >
+                class="secondary-button">
 
-                تسجيل الدخول
+            تسجيل الخروج
 
-            </button>
+        </button>
 
+    </div>
 
-            <!-- رسالة الدخول -->
+</div>
 
-            <div
-                id="loginMessage"
-                class="message"
-            ></div>
 
-
-        </section>
-
-
-
-        <!-- =================================================
-             لوحة فتح الحسابات
-        ================================================== -->
-
-        <section
-            id="accountSection"
-            class="card"
-            style="display:none;"
-        >
-
-
-            <!-- العنوان -->
-
-            <div class="logo">
-
-                BOK-PED
-
-            </div>
-
-
-            <h1>
-
-                فتح حساب جديد
-
-            </h1>
-
-
-            <p class="subtitle">
-
-                لوحة إدارة الحسابات
-
-            </p>
-
-
-            <!-- حالة المسؤول -->
-
-            <div
-                id="adminStatus"
-                class="message success"
-            >
-
-                تم تسجيل الدخول كمسؤول
-
-            </div>
-
-
-            <!-- =================================================
-                 اسم المستخدم
-            ================================================== -->
-
-            <div class="input-group">
-
-                <label for="username">
-
-                    اسم المستخدم
-
-                </label>
-
-                <input
-                    type="text"
-                    id="username"
-                    placeholder="أدخل اسم المستخدم"
-                    autocomplete="off"
-                >
-
-            </div>
-
-
-            <!-- =================================================
-                 كلمة المرور
-            ================================================== -->
-
-            <div class="input-group">
-
-                <label for="password">
-
-                    كلمة المرور
-
-                </label>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="أدخل كلمة مرور الحساب"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <!-- =================================================
-                 الاشتراك
-            ================================================== -->
-
-            <div class="input-group">
-
-                <label for="subscription">
-
-                    مدة الاشتراك
-
-                </label>
-
-                <select id="subscription">
-
-                    <option value="day">
-
-                        يوم واحد
-
-                    </option>
-
-                    <option value="week">
-
-                        أسبوع واحد
-
-                    </option>
-
-                    <option value="month">
-
-                        شهر واحد
-
-                    </option>
-
-                    <option value="3months">
-
-                        3 شهور
-
-                    </option>
-
-                    <option value="12months">
-
-                        12 شهر
-
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- معلومات الاشتراك -->
-
-            <div
-                id="subscriptionInfo"
-                class="subscription-info"
-            ></div>
-
-
-            <!-- =================================================
-                 زر فتح الحساب
-            ================================================== -->
-
-            <button
-                id="createAccount"
-                type="button"
-            >
-
-                فتح الحساب
-
-            </button>
-
-
-            <!-- =================================================
-                 رسالة العملية
-            ================================================== -->
-
-            <div
-                id="message"
-                class="message"
-            ></div>
-
-
-            <!-- =================================================
-                 تسجيل الخروج
-            ================================================== -->
-
-            <button
-                id="logoutButton"
-                type="button"
-                class="secondary-button"
-            >
-
-                تسجيل الخروج
-
-            </button>
-
-
-        </section>
-
-
-    </main>
-
-
-    <!-- =====================================================
-         JavaScript
-    ====================================================== -->
-
-    <script
-        type="module"
-        src="app.js"
-    ></script>
-
+<script type="module" src="./app.js"></script>
 
 </body>
-
 </html>
