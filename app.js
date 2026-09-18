@@ -6,6 +6,7 @@ import {
 import {
     getAuth,
     onAuthStateChanged,
+    signInWithEmailAndPassword,
     signOut,
     createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
@@ -20,7 +21,7 @@ import {
 
 
 // =====================================================
-// Firebase
+// Firebase Configuration
 // =====================================================
 
 const firebaseConfig = {
@@ -49,11 +50,13 @@ const firebaseConfig = {
 
 
 // =====================================================
-// التطبيق الأساسي
+// Firebase App الرئيسي
 // =====================================================
 
 const app =
-    initializeApp(firebaseConfig);
+    initializeApp(
+        firebaseConfig
+    );
 
 
 // =====================================================
@@ -61,25 +64,8 @@ const app =
 // =====================================================
 
 const auth =
-    getAuth(app);
-
-
-// =====================================================
-// تطبيق Firebase ثانوي
-// يستخدم لإنشاء حساب العميل
-// بدون تسجيل خروج المسؤول
-// =====================================================
-
-const secondaryApp =
-    initializeApp(
-        firebaseConfig,
-        "CustomerCreationApp"
-    );
-
-
-const secondaryAuth =
     getAuth(
-        secondaryApp
+        app
     );
 
 
@@ -88,7 +74,29 @@ const secondaryAuth =
 // =====================================================
 
 const db =
-    getDatabase(app);
+    getDatabase(
+        app
+    );
+
+
+// =====================================================
+// Firebase App ثانوي
+//
+// يستخدم لإنشاء حساب العميل
+// بدون تسجيل خروج المسؤول
+// =====================================================
+
+const customerApp =
+    initializeApp(
+        firebaseConfig,
+        "CustomerCreationApp"
+    );
+
+
+const customerAuth =
+    getAuth(
+        customerApp
+    );
 
 
 // =====================================================
@@ -100,15 +108,53 @@ const ADMIN_UID =
 
 
 // =====================================================
-// حالة المسؤول
+// عناصر تسجيل الدخول
 // =====================================================
 
-let adminAuthorized =
-    false;
+const loginSection =
+    document.getElementById(
+        "loginSection"
+    );
+
+
+const accountSection =
+    document.getElementById(
+        "accountSection"
+    );
+
+
+const adminEmail =
+    document.getElementById(
+        "adminEmail"
+    );
+
+
+const adminPassword =
+    document.getElementById(
+        "adminPassword"
+    );
+
+
+const loginButton =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+const loginMessage =
+    document.getElementById(
+        "loginMessage"
+    );
+
+
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
 
 
 // =====================================================
-// عناصر الصفحة
+// عناصر فتح الحساب
 // =====================================================
 
 const usernameInput =
@@ -148,34 +194,32 @@ const message =
 
 
 // =====================================================
-// التأكد من وجود العناصر
+// حالة المسؤول
 // =====================================================
 
-if (
-    !usernameInput ||
-    !passwordInput ||
-    !subscriptionInput ||
-    !subscriptionInfo ||
-    !createButton ||
-    !message
+let adminAuthorized =
+    false;
+
+
+// =====================================================
+// عرض رسالة تسجيل الدخول
+// =====================================================
+
+function showLoginMessage(
+    text,
+    type = ""
 ) {
 
-    console.error(
-        "خطأ: بعض عناصر HTML غير موجودة."
-    );
+    loginMessage.className =
+        "message " + type;
+
+    loginMessage.innerHTML =
+        text;
 }
 
 
 // =====================================================
-// تعطيل زر فتح الحساب في البداية
-// =====================================================
-
-createButton.disabled =
-    true;
-
-
-// =====================================================
-// عرض الرسالة
+// عرض رسالة فتح الحساب
 // =====================================================
 
 function showMessage(
@@ -184,40 +228,10 @@ function showMessage(
 ) {
 
     message.className =
-        type;
+        "message " + type;
 
     message.innerHTML =
         text;
-}
-
-
-// =====================================================
-// حماية HTML
-// =====================================================
-
-function escapeHTML(text) {
-
-    return text
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
 }
 
 
@@ -245,7 +259,7 @@ const subscriptionNames = {
 
 
 // =====================================================
-// تحديث معلومات الاشتراك
+// تحديث الاشتراك
 // =====================================================
 
 function updateSubscriptionInfo() {
@@ -274,94 +288,39 @@ updateSubscriptionInfo();
 
 
 // =====================================================
-// التحقق من الحساب الإداري
+// حماية HTML
 // =====================================================
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
+function escapeHTML(
+    text
+) {
 
-        // ---------------------------------------------
-        // لا يوجد تسجيل دخول
-        // ---------------------------------------------
-
-        if (!user) {
-
-            adminAuthorized =
-                false;
-
-            createButton.disabled =
-                true;
-
-            showMessage(
-                "يجب تسجيل الدخول بالحساب الإداري أولاً.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // التحقق من UID
-        // ---------------------------------------------
-
-        if (
-            user.uid !==
-            ADMIN_UID
-        ) {
-
-            adminAuthorized =
-                false;
-
-            createButton.disabled =
-                true;
-
-            showMessage(
-                "غير مسموح. هذا الحساب ليس حسابًا إداريًا.",
-                "error"
-            );
-
-
-            // تسجيل خروج الحساب غير الإداري
-
-            try {
-
-                await signOut(auth);
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-            }
-
-
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // المسؤول صحيح
-        // ---------------------------------------------
-
-        adminAuthorized =
-            true;
-
-        createButton.disabled =
-            false;
-
-
-        showMessage(
-            "تم التحقق من الحساب الإداري. يمكنك فتح الحسابات.",
-            "success"
+    return text
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
         );
-    }
-);
+}
 
 
 // =====================================================
-// حساب تاريخ انتهاء الاشتراك
+// حساب نهاية الاشتراك
 // =====================================================
 
 function calculateSubscriptionEnd(
@@ -520,49 +479,387 @@ async function getAvailableAccountNumber() {
 
 
 // =====================================================
-// إنشاء الحساب
+// تسجيل دخول المسؤول
+// =====================================================
+
+loginButton.addEventListener(
+    "click",
+    async () => {
+
+        const email =
+            adminEmail.value.trim();
+
+
+        const password =
+            adminPassword.value;
+
+
+        // ---------------------------------------------
+        // التحقق من البريد
+        // ---------------------------------------------
+
+        if (
+            !email
+        ) {
+
+            showLoginMessage(
+                "أدخل البريد الإلكتروني.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ---------------------------------------------
+        // التحقق من كلمة المرور
+        // ---------------------------------------------
+
+        if (
+            !password
+        ) {
+
+            showLoginMessage(
+                "أدخل كلمة المرور.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ---------------------------------------------
+        // تعطيل الزر
+        // ---------------------------------------------
+
+        loginButton.disabled =
+            true;
+
+        loginButton.textContent =
+            "جاري تسجيل الدخول...";
+
+
+        showLoginMessage(
+            "جاري التحقق...",
+            "loading"
+        );
+
+
+        try {
+
+            const result =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            const user =
+                result.user;
+
+
+            // =========================================
+            // التحقق من UID
+            // =========================================
+
+            if (
+                user.uid !==
+                ADMIN_UID
+            ) {
+
+                await signOut(
+                    auth
+                );
+
+
+                throw {
+                    code:
+                        "admin/not-authorized"
+                };
+            }
+
+
+            // =========================================
+            // تم تسجيل الدخول
+            // =========================================
+
+            adminAuthorized =
+                true;
+
+
+            showLoginMessage(
+                "تم تسجيل الدخول بنجاح.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Login Error:",
+                error
+            );
+
+
+            let errorMessage =
+                "تعذر تسجيل الدخول.";
+
+
+            switch (
+                error.code
+            ) {
+
+                case "auth/invalid-credential":
+
+                    errorMessage =
+                        "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+
+                    break;
+
+
+                case "auth/invalid-email":
+
+                    errorMessage =
+                        "البريد الإلكتروني غير صحيح.";
+
+                    break;
+
+
+                case "auth/user-disabled":
+
+                    errorMessage =
+                        "هذا الحساب تم تعطيله.";
+
+                    break;
+
+
+                case "auth/too-many-requests":
+
+                    errorMessage =
+                        "تم إجراء محاولات كثيرة. حاول لاحقًا.";
+
+                    break;
+
+
+                case "auth/network-request-failed":
+
+                    errorMessage =
+                        "تأكد من اتصال الإنترنت.";
+
+                    break;
+
+
+                case "admin/not-authorized":
+
+                    errorMessage =
+                        "هذا الحساب ليس حسابًا إداريًا.";
+
+                    break;
+
+
+                default:
+
+                    if (
+                        error.message
+                    ) {
+
+                        errorMessage =
+                            error.message;
+                    }
+
+                    break;
+            }
+
+
+            adminAuthorized =
+                false;
+
+
+            showLoginMessage(
+                errorMessage,
+                "error"
+            );
+
+        }
+
+
+        loginButton.disabled =
+            false;
+
+        loginButton.textContent =
+            "تسجيل الدخول";
+    }
+);
+
+
+// =====================================================
+// مراقبة جلسة Firebase
+// =====================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        // =============================================
+        // لا يوجد مستخدم
+        // =============================================
+
+        if (!user) {
+
+            adminAuthorized =
+                false;
+
+
+            loginSection.style.display =
+                "block";
+
+
+            accountSection.style.display =
+                "none";
+
+
+            return;
+        }
+
+
+        // =============================================
+        // مستخدم غير إداري
+        // =============================================
+
+        if (
+            user.uid !==
+            ADMIN_UID
+        ) {
+
+            adminAuthorized =
+                false;
+
+
+            await signOut(
+                auth
+            );
+
+
+            loginSection.style.display =
+                "block";
+
+
+            accountSection.style.display =
+                "none";
+
+
+            showLoginMessage(
+                "غير مسموح. هذا الحساب ليس حسابًا إداريًا.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        // =============================================
+        // المسؤول
+        // =============================================
+
+        adminAuthorized =
+            true;
+
+
+        loginSection.style.display =
+            "none";
+
+
+        accountSection.style.display =
+            "block";
+
+
+        showMessage(
+            "تم التحقق من الحساب الإداري. يمكنك فتح الحسابات.",
+            "success"
+        );
+    }
+);
+
+
+// =====================================================
+// تسجيل الخروج
+// =====================================================
+
+logoutButton.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            await signOut(
+                auth
+            );
+
+
+            adminAuthorized =
+                false;
+
+
+            showLoginMessage(
+                "تم تسجيل الخروج.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Logout Error:",
+                error
+            );
+
+
+            showLoginMessage(
+                "تعذر تسجيل الخروج.",
+                "error"
+            );
+        }
+    }
+);
+
+
+// =====================================================
+// فتح الحساب
 // =====================================================
 
 createButton.addEventListener(
     "click",
     async () => {
 
-        // =================================================
-        // حماية إضافية
-        // لا يمكن تنفيذ العملية بدون مسؤول
-        // =================================================
-
-        if (
-            !adminAuthorized
-        ) {
-
-            showMessage(
-                "غير مسموح. يجب استخدام الحساب الإداري.",
-                "error"
-            );
-
-            return;
-        }
-
+        // =============================================
+        // حماية المسؤول
+        // =============================================
 
         const currentAdmin =
             auth.currentUser;
 
 
         if (
+            !adminAuthorized ||
             !currentAdmin ||
             currentAdmin.uid !==
             ADMIN_UID
         ) {
 
             showMessage(
-                "جلسة المسؤول غير صالحة.",
+                "غير مسموح. يجب تسجيل الدخول بالحساب الإداري.",
                 "error"
             );
 
             return;
         }
 
+
+        // =============================================
+        // البيانات
+        // =============================================
 
         const username =
             usernameInput.value.trim();
@@ -576,9 +873,9 @@ createButton.addEventListener(
             subscriptionInput.value;
 
 
-        // =================================================
-        // التحقق من اسم المستخدم
-        // =================================================
+        // =============================================
+        // اسم المستخدم
+        // =============================================
 
         if (
             username.length < 3
@@ -593,9 +890,9 @@ createButton.addEventListener(
         }
 
 
-        // =================================================
-        // التحقق من كلمة المرور
-        // =================================================
+        // =============================================
+        // كلمة المرور
+        // =============================================
 
         if (
             password.length < 6
@@ -610,9 +907,9 @@ createButton.addEventListener(
         }
 
 
-        // =================================================
-        // التحقق من الاشتراك
-        // =================================================
+        // =============================================
+        // الاشتراك
+        // =============================================
 
         if (
             !subscriptionNames[
@@ -629,9 +926,9 @@ createButton.addEventListener(
         }
 
 
-        // =================================================
+        // =============================================
         // تعطيل الزر
-        // =================================================
+        // =============================================
 
         createButton.disabled =
             true;
@@ -648,17 +945,17 @@ createButton.addEventListener(
 
         try {
 
-            // =============================================
+            // =========================================
             // بداية الاشتراك
-            // =============================================
+            // =========================================
 
             const subscriptionStart =
                 new Date();
 
 
-            // =============================================
+            // =========================================
             // نهاية الاشتراك
-            // =============================================
+            // =========================================
 
             const subscriptionEnd =
                 calculateSubscriptionEnd(
@@ -667,33 +964,32 @@ createButton.addEventListener(
                 );
 
 
-            // =============================================
-            // رقم حساب
-            // =============================================
+            // =========================================
+            // رقم الحساب
+            // =========================================
 
             const accountNumber =
                 await getAvailableAccountNumber();
 
 
-            // =============================================
+            // =========================================
             // البريد الداخلي
-            // =============================================
+            // =========================================
 
             const email =
                 accountNumber +
                 "@bok-ped.firebaseapp.com";
 
 
-            // =============================================
-            // إنشاء العميل في التطبيق الثانوي
+            // =========================================
+            // إنشاء العميل في Firebase Auth
             //
-            // مهم:
-            // المسؤول الأساسي لا يتم تسجيل خروجه
-            // =============================================
+            // التطبيق الثانوي يحافظ على جلسة المسؤول
+            // =========================================
 
             const userCredential =
                 await createUserWithEmailAndPassword(
-                    secondaryAuth,
+                    customerAuth,
                     email,
                     password
                 );
@@ -703,9 +999,9 @@ createButton.addEventListener(
                 userCredential.user.uid;
 
 
-            // =============================================
-            // حفظ بيانات المستخدم
-            // =============================================
+            // =========================================
+            // حفظ users
+            // =========================================
 
             await set(
                 ref(
@@ -746,9 +1042,9 @@ createButton.addEventListener(
             );
 
 
-            // =============================================
-            // حفظ رقم الحساب
-            // =============================================
+            // =========================================
+            // حفظ accountNumbers
+            // =========================================
 
             await set(
                 ref(
@@ -764,18 +1060,18 @@ createButton.addEventListener(
             );
 
 
-            // =============================================
-            // تسجيل خروج التطبيق الثانوي فقط
-            // =============================================
+            // =========================================
+            // تسجيل خروج التطبيق الثانوي
+            // =========================================
 
             await signOut(
-                secondaryAuth
+                customerAuth
             );
 
 
-            // =============================================
+            // =========================================
             // نجاح
-            // =============================================
+            // =========================================
 
             showMessage(
 
@@ -841,9 +1137,9 @@ createButton.addEventListener(
             );
 
 
-            // =============================================
+            // =========================================
             // تنظيف الحقول
-            // =============================================
+            // =========================================
 
             usernameInput.value =
                 "";
@@ -860,7 +1156,7 @@ createButton.addEventListener(
         } catch (error) {
 
             console.error(
-                "Firebase Error:",
+                "Create Account Error:",
                 error
             );
 
@@ -873,18 +1169,10 @@ createButton.addEventListener(
                 error.code
             ) {
 
-                case "auth/operation-not-allowed":
-
-                    errorMessage =
-                        "تسجيل الدخول بالبريد الإلكتروني غير مفعّل في Firebase Authentication.";
-
-                    break;
-
-
                 case "auth/email-already-in-use":
 
                     errorMessage =
-                        "هذا الحساب موجود بالفعل. حاول مرة أخرى.";
+                        "رقم الحساب موجود بالفعل. اضغط مرة أخرى لإنشاء رقم جديد.";
 
                     break;
 
@@ -897,10 +1185,10 @@ createButton.addEventListener(
                     break;
 
 
-                case "auth/invalid-email":
+                case "auth/operation-not-allowed":
 
                     errorMessage =
-                        "حدث خطأ في البريد الداخلي للحساب.";
+                        "تسجيل الدخول بالبريد الإلكتروني غير مفعّل في Firebase Authentication.";
 
                     break;
 
@@ -909,14 +1197,6 @@ createButton.addEventListener(
 
                     errorMessage =
                         "تأكد من اتصال الإنترنت.";
-
-                    break;
-
-
-                case "auth/invalid-api-key":
-
-                    errorMessage =
-                        "مفتاح Firebase API غير صحيح.";
 
                     break;
 
@@ -951,632 +1231,14 @@ createButton.addEventListener(
         }
 
 
-        // =================================================
+        // =============================================
         // إعادة الزر
-        // =================================================
+        // =============================================
 
         createButton.disabled =
             !adminAuthorized;
 
         createButton.textContent =
             "فتح الحساب";
-
-    }
-);// عرض الرسالة
-// =====================================================
-
-function showMessage(
-    text,
-    type = ""
-) {
-
-    message.className = type;
-
-    message.innerHTML = text;
-}
-
-
-// =====================================================
-// أسماء الاشتراكات
-// =====================================================
-
-const subscriptionNames = {
-
-    day:
-        "يوم واحد",
-
-    week:
-        "أسبوع واحد",
-
-    month:
-        "شهر واحد",
-
-    "3months":
-        "3 شهور",
-
-    "12months":
-        "12 شهر"
-};
-
-
-// =====================================================
-// تحديث معلومات الاشتراك عند الاختيار
-// =====================================================
-
-function updateSubscriptionInfo() {
-
-    const type =
-        subscriptionInput.value;
-
-    const name =
-        subscriptionNames[type] ||
-        "يوم واحد";
-
-
-    subscriptionInfo.innerHTML =
-        `مدة الاشتراك: <strong>${name}</strong>`;
-}
-
-
-subscriptionInput.addEventListener(
-    "change",
-    updateSubscriptionInfo
-);
-
-
-// تشغيلها أول مرة
-
-updateSubscriptionInfo();
-
-
-// =====================================================
-// حساب تاريخ انتهاء الاشتراك
-// =====================================================
-
-function calculateSubscriptionEnd(
-    startDate,
-    subscriptionType
-) {
-
-    const endDate =
-        new Date(startDate.getTime());
-
-
-    switch (subscriptionType) {
-
-        case "day":
-
-            endDate.setDate(
-                endDate.getDate() + 1
-            );
-
-            break;
-
-
-        case "week":
-
-            endDate.setDate(
-                endDate.getDate() + 7
-            );
-
-            break;
-
-
-        case "month":
-
-            endDate.setMonth(
-                endDate.getMonth() + 1
-            );
-
-            break;
-
-
-        case "3months":
-
-            endDate.setMonth(
-                endDate.getMonth() + 3
-            );
-
-            break;
-
-
-        case "12months":
-
-            endDate.setFullYear(
-                endDate.getFullYear() + 1
-            );
-
-            break;
-
-
-        default:
-
-            throw new Error(
-                "مدة الاشتراك غير صحيحة."
-            );
-    }
-
-
-    return endDate;
-}
-
-
-// =====================================================
-// تنسيق التاريخ للعرض
-// =====================================================
-
-function formatDate(date) {
-
-    return new Intl.DateTimeFormat(
-        "ar-EG",
-        {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    ).format(date);
-}
-
-
-// =====================================================
-// توليد رقم حساب من 7 أرقام
-// =====================================================
-
-function generateAccountNumber() {
-
-    return Math.floor(
-        1000000 +
-        Math.random() * 9000000
-    ).toString();
-}
-
-
-// =====================================================
-// البحث عن رقم حساب غير مستخدم
-// =====================================================
-
-async function getAvailableAccountNumber() {
-
-    const maxAttempts = 30;
-
-
-    for (
-        let attempt = 0;
-        attempt < maxAttempts;
-        attempt++
-    ) {
-
-        const accountNumber =
-            generateAccountNumber();
-
-
-        const accountRef =
-            ref(
-                db,
-                "accountNumbers/" +
-                accountNumber
-            );
-
-
-        const snapshot =
-            await get(accountRef);
-
-
-        if (!snapshot.exists()) {
-
-            return accountNumber;
-        }
-    }
-
-
-    throw new Error(
-        "لم يتم العثور على رقم حساب متاح."
-    );
-}
-
-
-// =====================================================
-// إنشاء الحساب
-// =====================================================
-
-createButton.addEventListener(
-    "click",
-    async () => {
-
-        const username =
-            usernameInput.value.trim();
-
-
-        const password =
-            passwordInput.value;
-
-
-        const subscriptionType =
-            subscriptionInput.value;
-
-
-        // ---------------------------------------------
-        // التحقق من اسم المستخدم
-        // ---------------------------------------------
-
-        if (username.length < 3) {
-
-            showMessage(
-                "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // التحقق من كلمة المرور
-        // ---------------------------------------------
-
-        if (password.length < 6) {
-
-            showMessage(
-                "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // التحقق من مدة الاشتراك
-        // ---------------------------------------------
-
-        if (
-            !subscriptionNames[
-                subscriptionType
-            ]
-        ) {
-
-            showMessage(
-                "يرجى اختيار مدة اشتراك صحيحة.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // تعطيل الزر
-        // ---------------------------------------------
-
-        createButton.disabled = true;
-
-        createButton.textContent =
-            "جاري إنشاء الحساب...";
-
-
-        showMessage(
-            "جاري إنشاء الحساب...",
-            "loading"
-        );
-
-
-        try {
-
-            // =========================================
-            // وقت بداية الاشتراك
-            // =========================================
-
-            const subscriptionStart =
-                new Date();
-
-
-            // =========================================
-            // حساب نهاية الاشتراك
-            // =========================================
-
-            const subscriptionEnd =
-                calculateSubscriptionEnd(
-                    subscriptionStart,
-                    subscriptionType
-                );
-
-
-            // =========================================
-            // إنشاء رقم حساب فريد
-            // =========================================
-
-            const accountNumber =
-                await getAvailableAccountNumber();
-
-
-            // =========================================
-            // إنشاء بريد داخلي لـ Firebase Auth
-            // =========================================
-
-            const email =
-                accountNumber +
-                "@bok-ped.firebaseapp.com";
-
-
-            // =========================================
-            // إنشاء مستخدم Firebase Authentication
-            // =========================================
-
-            const userCredential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            const uid =
-                userCredential.user.uid;
-
-
-            // =========================================
-            // حفظ بيانات المستخدم
-            // =========================================
-
-            await set(
-                ref(
-                    db,
-                    "users/" + uid
-                ),
-                {
-
-                    username:
-                        username,
-
-                    accountNumber:
-                        accountNumber,
-
-                    uid:
-                        uid,
-
-                    createdAt:
-                        Date.now(),
-
-
-                    // ================================
-                    // بيانات الاشتراك
-                    // ================================
-
-                    subscriptionType:
-                        subscriptionType,
-
-                    subscriptionName:
-                        subscriptionNames[
-                            subscriptionType
-                        ],
-
-                    subscriptionStart:
-                        subscriptionStart.getTime(),
-
-                    subscriptionEnd:
-                        subscriptionEnd.getTime(),
-
-                    active:
-                        true
-
-                }
-            );
-
-
-            // =========================================
-            // حفظ رقم الحساب
-            // =========================================
-
-            await set(
-                ref(
-                    db,
-                    "accountNumbers/" +
-                    accountNumber
-                ),
-                {
-
-                    uid:
-                        uid
-
-                }
-            );
-
-
-            // =========================================
-            // نجاح
-            // =========================================
-
-            showMessage(
-
-                `
-                <div class="success-title">
-                    تم إنشاء الحساب بنجاح 🎉
-                </div>
-
-                <div class="account-box">
-
-                    <div class="account-label">
-                        اسم المستخدم
-                    </div>
-
-                    <strong>
-                        ${escapeHTML(username)}
-                    </strong>
-
-
-                    <div class="account-label">
-                        رقم الحساب
-                    </div>
-
-                    <div class="account-number">
-                        ${accountNumber}
-                    </div>
-
-
-                    <div class="account-label">
-                        مدة الاشتراك
-                    </div>
-
-                    <strong>
-                        ${subscriptionNames[
-                            subscriptionType
-                        ]}
-                    </strong>
-
-
-                    <div class="account-label">
-                        ينتهي الاشتراك في
-                    </div>
-
-                    <div class="subscription-end">
-                        ${formatDate(
-                            subscriptionEnd
-                        )}
-                    </div>
-
-                </div>
-
-
-                <p class="success-text">
-                    احتفظ برقم الحساب وكلمة المرور.
-                </p>
-                `,
-
-                "success"
-            );
-
-
-            // تنظيف الحقول
-
-            usernameInput.value = "";
-
-            passwordInput.value = "";
-
-            subscriptionInput.value =
-                "day";
-
-            updateSubscriptionInfo();
-
-
-        } catch (error) {
-
-            console.error(
-                "Firebase Error:",
-                error
-            );
-
-
-            let errorMessage =
-                "حدث خطأ أثناء إنشاء الحساب.";
-
-
-            // =========================================
-            // أخطاء Firebase Authentication
-            // =========================================
-
-            switch (error.code) {
-
-                case "auth/operation-not-allowed":
-
-                    errorMessage =
-                        "تسجيل الدخول بالبريد الإلكتروني غير مفعّل في Firebase Authentication.";
-
-                    break;
-
-
-                case "auth/email-already-in-use":
-
-                    errorMessage =
-                        "هذا الحساب موجود بالفعل. حاول مرة أخرى.";
-
-                    break;
-
-
-                case "auth/weak-password":
-
-                    errorMessage =
-                        "كلمة المرور ضعيفة. استخدم 6 أحرف أو أكثر.";
-
-                    break;
-
-
-                case "auth/invalid-email":
-
-                    errorMessage =
-                        "حدث خطأ في البريد الداخلي للحساب.";
-
-                    break;
-
-
-                case "auth/network-request-failed":
-
-                    errorMessage =
-                        "تأكد من اتصال الإنترنت.";
-
-                    break;
-
-
-                case "auth/invalid-api-key":
-
-                    errorMessage =
-                        "مفتاح Firebase API غير صحيح.";
-
-                    break;
-
-
-                case "PERMISSION_DENIED":
-
-                    errorMessage =
-                        "قواعد Firebase تمنع حفظ البيانات.";
-
-                    break;
-
-
-                default:
-
-                    if (error.message) {
-
-                        errorMessage =
-                            error.message;
-                    }
-
-                    break;
-            }
-
-
-            showMessage(
-                errorMessage,
-                "error"
-            );
-
-        }
-
-
-        // ---------------------------------------------
-        // إعادة الزر
-        // ---------------------------------------------
-
-        createButton.disabled = false;
-
-        createButton.textContent =
-            "فتح الحساب";
-
     }
 );
-
-
-// =====================================================
-// حماية اسم المستخدم قبل وضعه داخل HTML
-// =====================================================
-
-function escapeHTML(text) {
-
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-                    }
