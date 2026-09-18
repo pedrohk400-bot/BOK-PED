@@ -18,6 +18,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
+/*
+==================================================
+FIREBASE
+==================================================
+*/
+
 const firebaseConfig = {
 
     apiKey:
@@ -125,7 +131,24 @@ const logoutButton =
 
 /*
 ==================================================
-MESSAGE
+ESCAPE HTML
+==================================================
+*/
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/*
+==================================================
+LOGIN MESSAGE
 ==================================================
 */
 
@@ -142,10 +165,17 @@ function loginMsg(text, type) {
 }
 
 
+/*
+==================================================
+ACCOUNT MESSAGE
+==================================================
+*/
+
 function accountMsg(text, type) {
 
-    message.textContent =
-        text;
+    message.innerHTML =
+        escapeHTML(text)
+        .replace(/\n/g, "<br>");
 
     message.style.display =
         "block";
@@ -229,7 +259,7 @@ updateSubscriptionInfo();
 
 /*
 ==================================================
-GENERATE ACCOUNT
+GENERATE ACCOUNT NUMBER
 ==================================================
 */
 
@@ -265,6 +295,77 @@ function formatDate(timestamp) {
     ).format(
         new Date(timestamp)
     );
+
+}
+
+
+/*
+==================================================
+COPY TEXT
+==================================================
+*/
+
+async function copyText(text, button) {
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+        const oldText =
+            button.textContent;
+
+        button.textContent =
+            "تم النسخ ✓";
+
+        setTimeout(
+            function () {
+
+                button.textContent =
+                    oldText;
+
+            },
+            1500
+        );
+
+    } catch (error) {
+
+        const input =
+            document.createElement("textarea");
+
+        input.value =
+            text;
+
+        document.body.appendChild(
+            input
+        );
+
+        input.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        input.remove();
+
+        const oldText =
+            button.textContent;
+
+        button.textContent =
+            "تم النسخ ✓";
+
+        setTimeout(
+            function () {
+
+                button.textContent =
+                    oldText;
+
+            },
+            1500
+        );
+
+    }
 
 }
 
@@ -538,6 +639,12 @@ createAccount.addEventListener(
 
         try {
 
+            /*
+            ==========================================
+            FIND FREE ACCOUNT NUMBER
+            ==========================================
+            */
+
             let accountNumber;
 
             let exists = true;
@@ -567,10 +674,22 @@ createAccount.addEventListener(
             }
 
 
+            /*
+            ==========================================
+            CUSTOMER EMAIL
+            ==========================================
+            */
+
             const email =
                 accountNumber +
                 "@bok-ped.firebaseapp.com";
 
+
+            /*
+            ==========================================
+            CREATE FIREBASE CUSTOMER
+            ==========================================
+            */
 
             const customerResult =
                 await createUserWithEmailAndPassword(
@@ -583,6 +702,12 @@ createAccount.addEventListener(
             const uid =
                 customerResult.user.uid;
 
+
+            /*
+            ==========================================
+            DATES
+            ==========================================
+            */
 
             const now =
                 Date.now();
@@ -598,6 +723,12 @@ createAccount.addEventListener(
                     1000
                 );
 
+
+            /*
+            ==========================================
+            USER DATA
+            ==========================================
+            */
 
             const userData = {
 
@@ -631,6 +762,12 @@ createAccount.addEventListener(
             };
 
 
+            /*
+            ==========================================
+            SAVE USER
+            ==========================================
+            */
+
             await set(
                 ref(
                     db,
@@ -639,6 +776,12 @@ createAccount.addEventListener(
                 userData
             );
 
+
+            /*
+            ==========================================
+            SAVE ACCOUNT NUMBER
+            ==========================================
+            */
 
             await set(
                 ref(
@@ -652,21 +795,194 @@ createAccount.addEventListener(
             );
 
 
+            /*
+            ==========================================
+            SIGN OUT CUSTOMER
+            ==========================================
+            */
+
             await signOut(
                 customerAuth
             );
 
 
-            accountMsg(
-                "تم فتح الحساب بنجاح\nرقم الحساب: " +
-                accountNumber +
-                "\nالاشتراك: " +
-                subscriptionNames[type] +
-                "\nينتهي: " +
-                formatDate(end),
-                "success"
+            /*
+            ==========================================
+            SUCCESS SCREEN
+            ==========================================
+            */
+
+            const safeName =
+                escapeHTML(name);
+
+            const safeAccount =
+                escapeHTML(accountNumber);
+
+            const safePassword =
+                escapeHTML(customerPassword);
+
+            const safeSubscription =
+                escapeHTML(
+                    subscriptionNames[type]
+                );
+
+            const safeEnd =
+                escapeHTML(
+                    formatDate(end)
+                );
+
+
+            message.innerHTML = `
+
+                <div class="account-box">
+
+                    <div class="success-icon">
+                        ✓
+                    </div>
+
+                    <span class="success-title">
+                        تم إنشاء الحساب بنجاح 🎉
+                    </span>
+
+
+                    <div class="account-label">
+                        اسم المستخدم
+                    </div>
+
+                    <strong>
+                        ${safeName}
+                    </strong>
+
+
+                    <div class="account-label">
+                        رقم الحساب
+                    </div>
+
+                    <div
+                        class="account-number"
+                        id="createdAccountNumber"
+                    >
+                        ${safeAccount}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="account-copy"
+                        id="copyAccountButton"
+                    >
+                        نسخ رقم الحساب
+                    </button>
+
+
+                    <div class="account-label">
+                        كلمة المرور
+                    </div>
+
+                    <div
+                        class="account-password"
+                        id="createdPassword"
+                    >
+                        ${safePassword}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="password-copy"
+                        id="copyPasswordButton"
+                    >
+                        نسخ كلمة المرور
+                    </button>
+
+
+                    <div class="account-label">
+                        مدة الاشتراك
+                    </div>
+
+                    <strong>
+                        ${safeSubscription}
+                    </strong>
+
+
+                    <div class="account-label">
+                        ينتهي الاشتراك في
+                    </div>
+
+                    <strong>
+                        ${safeEnd}
+                    </strong>
+
+
+                    <div class="success-text">
+                        احتفظ برقم الحساب وكلمة المرور.
+                    </div>
+
+                </div>
+
+            `;
+
+
+            message.style.display =
+                "block";
+
+            message.className =
+                "message success";
+
+
+            /*
+            ==========================================
+            COPY ACCOUNT
+            ==========================================
+            */
+
+            const copyAccountButton =
+                document.getElementById(
+                    "copyAccountButton"
+                );
+
+
+            copyAccountButton.addEventListener(
+                "click",
+                function () {
+
+                    copyText(
+                        accountNumber,
+                        copyAccountButton
+                    );
+
+                }
             );
 
+
+            /*
+            ==========================================
+            COPY PASSWORD
+            ==========================================
+            */
+
+            const copyPasswordButton =
+                document.getElementById(
+                    "copyPasswordButton"
+                );
+
+
+            copyPasswordButton.addEventListener(
+                "click",
+                function () {
+
+                    copyText(
+                        customerPassword,
+                        copyPasswordButton
+                    );
+
+                }
+            );
+
+
+            /*
+            ==========================================
+            CLEAR FORM
+            ==========================================
+            */
 
             username.value =
                 "";
@@ -720,6 +1036,12 @@ logoutButton.addEventListener(
 
         adminPassword.value =
             "";
+
+        message.innerHTML =
+            "";
+
+        message.style.display =
+            "none";
 
     }
 );
