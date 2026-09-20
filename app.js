@@ -618,11 +618,11 @@ createAccount.addEventListener(
 
 
         if (
-            customerPassword.length < 6
+            customerPassword.length < 3
         ) {
 
             accountMsg(
-                "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
+                "كلمة المرور يجب أن تكون 3 أحرف على الأقل.",
                 "error"
             );
 
