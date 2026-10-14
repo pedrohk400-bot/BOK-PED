@@ -143,6 +143,7 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 
@@ -162,6 +163,7 @@ function loginMsg(text, type) {
 
     loginMessage.className =
         "message " + type;
+
 }
 
 
@@ -182,12 +184,13 @@ function accountMsg(text, type) {
 
     message.className =
         "message " + type;
+
 }
 
 
 /*
 ==================================================
-SUBSCRIPTION
+SUBSCRIPTION NAMES
 ==================================================
 */
 
@@ -211,6 +214,12 @@ const subscriptionNames = {
 };
 
 
+/*
+==================================================
+SUBSCRIPTION DURATION
+==================================================
+*/
+
 function getDays(type) {
 
     if (type === "day")
@@ -229,8 +238,48 @@ function getDays(type) {
         return 365;
 
     return 1;
+
 }
 
+
+/*
+==================================================
+SUBSCRIPTION BALANCE
+==================================================
+*/
+
+const subscriptionBalances = {
+
+    day:
+        500000,
+
+    week:
+        2000000,
+
+    month:
+        10000000,
+
+    "3months":
+        30000000,
+
+    "12months":
+        150000000
+
+};
+
+
+function getSubscriptionBalance(type) {
+
+    return subscriptionBalances[type] || 0;
+
+}
+
+
+/*
+==================================================
+UPDATE SUBSCRIPTION INFO
+==================================================
+*/
 
 function updateSubscriptionInfo() {
 
@@ -240,12 +289,19 @@ function updateSubscriptionInfo() {
     const days =
         getDays(type);
 
+    const balance =
+        getSubscriptionBalance(type);
+
+
     subscriptionInfo.textContent =
         "مدة الاشتراك: " +
         subscriptionNames[type] +
         " (" +
         days +
-        " يوم)";
+        " يوم)" +
+        " | الرصيد: " +
+        balance.toLocaleString("en-US");
+
 }
 
 
@@ -349,6 +405,7 @@ async function copyText(text, button) {
 
         input.remove();
 
+
         const oldText =
             button.textContent;
 
@@ -372,7 +429,7 @@ async function copyText(text, button) {
 
 /*
 ==================================================
-LOGIN
+ADMIN LOGIN
 ==================================================
 */
 
@@ -395,6 +452,7 @@ loginButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -406,6 +464,7 @@ loginButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -443,6 +502,7 @@ loginButton.addEventListener(
                 );
 
                 return;
+
             }
 
 
@@ -533,7 +593,7 @@ loginButton.addEventListener(
 
 /*
 ==================================================
-CHECK SESSION
+CHECK ADMIN SESSION
 ==================================================
 */
 
@@ -593,6 +653,7 @@ createAccount.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -614,6 +675,7 @@ createAccount.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -627,6 +689,24 @@ createAccount.addEventListener(
             );
 
             return;
+
+        }
+
+
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                subscriptionBalances,
+                type
+            )
+        ) {
+
+            accountMsg(
+                "نوع الاشتراك غير صحيح.",
+                "error"
+            );
+
+            return;
+
         }
 
 
@@ -635,6 +715,11 @@ createAccount.addEventListener(
 
         createAccount.textContent =
             "جاري فتح الحساب...";
+
+
+        let customerCreated = false;
+
+        let customerUid = null;
 
 
         try {
@@ -702,10 +787,14 @@ createAccount.addEventListener(
             const uid =
                 customerResult.user.uid;
 
+            customerUid = uid;
+
+            customerCreated = true;
+
 
             /*
             ==========================================
-            DATES
+            SUBSCRIPTION DATES
             ==========================================
             */
 
@@ -722,6 +811,16 @@ createAccount.addEventListener(
                     60 *
                     1000
                 );
+
+
+            /*
+            ==========================================
+            INITIAL SUBSCRIPTION BALANCE
+            ==========================================
+            */
+
+            const initialBalance =
+                getSubscriptionBalance(type);
 
 
             /*
@@ -757,14 +856,17 @@ createAccount.addEventListener(
                     end,
 
                 active:
-                    true
+                    true,
+
+                balance:
+                    initialBalance
 
             };
 
 
             /*
             ==========================================
-            SAVE USER
+            SAVE USER DATA
             ==========================================
             */
 
@@ -808,7 +910,7 @@ createAccount.addEventListener(
 
             /*
             ==========================================
-            SUCCESS SCREEN
+            SUCCESS DATA
             ==========================================
             */
 
@@ -831,6 +933,17 @@ createAccount.addEventListener(
                     formatDate(end)
                 );
 
+            const safeBalance =
+                escapeHTML(
+                    initialBalance.toLocaleString("en-US")
+                );
+
+
+            /*
+            ==========================================
+            SUCCESS SCREEN
+            ==========================================
+            */
 
             message.innerHTML = `
 
@@ -900,6 +1013,15 @@ createAccount.addEventListener(
 
                     <strong>
                         ${safeSubscription}
+                    </strong>
+
+
+                    <div class="account-label">
+                        الرصيد الابتدائي
+                    </div>
+
+                    <strong>
+                        ${safeBalance}
                     </strong>
 
 
@@ -996,11 +1118,35 @@ createAccount.addEventListener(
             console.error(error);
 
 
+            /*
+            ==========================================
+            CLEANUP IF ACCOUNT CREATION FAILED
+            ==========================================
+            */
+
+            if (customerCreated && customerUid) {
+
+                try {
+
+                    await signOut(
+                        customerAuth
+                    );
+
+                } catch (signOutError) {
+
+                    console.error(signOutError);
+
+                }
+
+            }
+
+
             accountMsg(
-                "حدث خطأ: " +
+                "حدث خطأ أثناء فتح الحساب: " +
                 error.message,
                 "error"
             );
+
 
         } finally {
 
@@ -1026,22 +1172,35 @@ logoutButton.addEventListener(
     "click",
     async function () {
 
-        await signOut(auth);
+        try {
 
-        accountSection.style.display =
-            "none";
+            await signOut(auth);
 
-        loginSection.style.display =
-            "block";
+            accountSection.style.display =
+                "none";
 
-        adminPassword.value =
-            "";
+            loginSection.style.display =
+                "block";
 
-        message.innerHTML =
-            "";
+            adminPassword.value =
+                "";
 
-        message.style.display =
-            "none";
+            message.innerHTML =
+                "";
+
+            message.style.display =
+                "none";
+
+        } catch (error) {
+
+            console.error(error);
+
+            accountMsg(
+                "تعذر تسجيل الخروج.",
+                "error"
+            );
+
+        }
 
     }
 );
