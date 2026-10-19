@@ -1,200 +1,1190 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07111f">
+<title>BOK PEDRO - لوحة الإدارة</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+    --bg: #07111f;
+    --card: #101d30;
+    --blue: #168bff;
+    --cyan: #00d4ff;
+    --white: #f4f8ff;
+    --muted: #9aacc4;
+    --green: #20d49a;
+    --red: #ff526b;
+    --border: rgba(255,255,255,.09);
+}
 
-    <meta name="theme-color"
-          content="#070a10">
+* {
+    box-sizing: border-box;
+}
 
-    <title>BOK-PED</title>
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Tahoma, sans-serif;
+    color: var(--white);
+    background:
+        radial-gradient(circle at top right, #12315a 0, transparent 35%),
+        radial-gradient(circle at bottom left, #102744 0, transparent 35%),
+        var(--bg);
+}
 
-    <link rel="stylesheet" href="style.css">
+button, input, select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.container {
+    width: min(100% - 28px, 700px);
+    margin: auto;
+    padding: 25px 0 45px;
+}
+
+.brand {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 23px;
+    margin: 0 auto 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 29px;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    color: #04101f;
+    box-shadow: 0 10px 35px rgba(22,139,255,.25);
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 27px;
+    letter-spacing: 1px;
+}
+
+.brand p {
+    margin: 9px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.card {
+    background: rgba(16,29,48,.96);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.17);
+}
+
+.card h2 {
+    margin: 0 0 8px;
+    font-size: 21px;
+}
+
+.description {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 0 0 20px;
+}
+
+label {
+    display: block;
+    margin: 16px 0 8px;
+    color: #dce8f9;
+    font-size: 14px;
+}
+
+input, select {
+    width: 100%;
+    min-height: 49px;
+    padding: 12px 14px;
+    color: white;
+    background: #091627;
+    border: 1px solid #273b56;
+    border-radius: 12px;
+    outline: none;
+    font-size: 15px;
+}
+
+input:focus, select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(22,139,255,.12);
+}
+
+select option {
+    background: #101d30;
+}
+
+.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 16px;
+    min-height: 48px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: .2s;
+}
+
+.btn:active {
+    transform: scale(.98);
+}
+
+.btn-primary {
+    color: #04101f;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+}
+
+.btn-secondary {
+    color: white;
+    background: #233853;
+    border: 1px solid var(--border);
+}
+
+.btn-danger {
+    color: white;
+    background: #a5263d;
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.message {
+    display: none;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    margin-top: 15px;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.message.error {
+    display: block;
+    color: #ffb6c1;
+    background: rgba(255,82,107,.12);
+    border: 1px solid rgba(255,82,107,.25);
+}
+
+.message.success {
+    display: block;
+    color: #8ff5d3;
+    background: rgba(32,212,154,.10);
+    border: 1px solid rgba(32,212,154,.23);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 7px 11px;
+    border-radius: 30px;
+    color: #91e9ff;
+    background: rgba(0,212,255,.10);
+    border: 1px solid rgba(0,212,255,.18);
+    font-size: 12px;
+}
+
+.info-box {
+    margin-top: 12px;
+    padding: 13px;
+    border-radius: 12px;
+    background: rgba(22,139,255,.08);
+    color: #b8d9ff;
+    border: 1px solid rgba(22,139,255,.18);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.account-box {
+    color: var(--white);
+    padding: 5px 0;
+    text-align: center;
+}
+
+.success-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: #061b16;
+    background: var(--green);
+    font-size: 29px;
+    font-weight: bold;
+}
+
+.success-title {
+    display: block;
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--green);
+    margin-bottom: 22px;
+}
+
+.account-label {
+    margin-top: 19px;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.account-value {
+    display: block;
+    overflow-wrap: anywhere;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.8;
+}
+
+.account-number {
+    font-size: 27px;
+    font-weight: bold;
+    color: var(--cyan);
+    direction: ltr;
+    letter-spacing: 2px;
+    overflow-wrap: anywhere;
+}
+
+.account-password {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    direction: ltr;
+    overflow-wrap: anywhere;
+}
+
+.copy-button {
+    width: 100%;
+    max-width: 280px;
+    margin-top: 10px;
+    padding: 11px;
+    color: white;
+    background: #233853;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.success-text {
+    margin-top: 22px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(32,212,154,.08);
+    color: #8ff5d3;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.footer {
+    text-align: center;
+    color: #70839e;
+    font-size: 12px;
+    margin-top: 25px;
+}
+
+@media (max-width: 420px) {
+    .container {
+        width: min(100% - 20px, 700px);
+        padding-top: 18px;
+    }
+
+    .card {
+        padding: 17px;
+        border-radius: 18px;
+    }
+
+    .brand h1 {
+        font-size: 24px;
+    }
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- LOGIN -->
+    <div class="brand">
+        <div class="logo">B</div>
+        <h1>BOK PEDRO</h1>
+        <p>لوحة إدارة الحسابات والاشتراكات</p>
+    </div>
 
-    <div id="loginSection" class="card">
 
-        <div class="logo">
-            BOK-PED
-        </div>
+    <!-- ======================================
+         LOGIN SECTION
+    ======================================= -->
 
-        <h2>
-            تسجيل الدخول
-        </h2>
+    <section id="loginSection" class="card">
 
-        <p class="subtitle">
-            الدخول إلى لوحة فتح الحسابات
+        <h2>تسجيل دخول المدير</h2>
+
+        <p class="description">
+            سجّل الدخول باستخدام البريد الإلكتروني وكلمة المرور
+            المرتبطين بحساب المدير في Firebase.
         </p>
 
+        <form id="loginForm">
 
-        <div class="input-group">
-
-            <label>
+            <label for="adminEmail">
                 البريد الإلكتروني
             </label>
 
             <input
                 id="adminEmail"
                 type="email"
-                value="website-reader@bok-ped.com"
-                placeholder="البريد الإلكتروني"
-                autocomplete="email"
+                placeholder="أدخل البريد الإلكتروني"
+                autocomplete="username"
+                required
             >
 
-        </div>
-
-
-        <div class="input-group">
-
-            <label>
+            <label for="adminPassword">
                 كلمة المرور
             </label>
 
             <input
                 id="adminPassword"
                 type="password"
-                placeholder="كلمة المرور"
+                placeholder="أدخل كلمة المرور"
                 autocomplete="current-password"
+                required
             >
 
-        </div>
-
-
-        <button id="loginButton"
-                type="button">
-
-            تسجيل الدخول
-
-        </button>
-
-
-        <div id="loginMessage"
-             class="message">
-        </div>
-
-    </div>
-
-
-
-    <!-- ACCOUNT -->
-
-    <div id="accountSection"
-         class="card"
-         style="display:none;">
-
-        <div class="logo">
-            BOK-PED
-        </div>
-
-        <h2>
-            فتح حساب جديد
-        </h2>
-
-
-        <div class="input-group">
-
-            <label>
-                اسم العميل
-            </label>
-
-            <input
-                id="username"
-                type="text"
-                placeholder="اسم العميل"
+            <button
+                id="loginButton"
+                type="submit"
+                class="btn btn-primary btn-full"
             >
+                تسجيل الدخول
+            </button>
+
+        </form>
+
+        <div id="loginMessage" class="message"></div>
+
+    </section>
+
+
+    <!-- ======================================
+         ADMIN SECTION
+    ======================================= -->
+
+    <section id="accountSection" class="hidden">
+
+        <div class="header">
+            <h2>إدارة الحسابات</h2>
+            <span class="badge">مدير النظام</span>
+        </div>
+
+
+        <div class="card">
+
+            <h2>إنشاء حساب عميل</h2>
+
+            <p class="description">
+                أنشئ حسابًا جديدًا وحدد اسم العميل وكلمة المرور
+                ومدة الاشتراك.
+            </p>
+
+            <form id="createAccountForm">
+
+                <label for="username">
+                    اسم العميل
+                </label>
+
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="اكتب اسم العميل"
+                    maxlength="100"
+                    required
+                >
+
+                <label for="password">
+                    كلمة مرور العميل
+                </label>
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="أدخل كلمة مرور العميل"
+                    minlength="6"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <label for="subscription">
+                    مدة الاشتراك
+                </label>
+
+                <select id="subscription" required>
+                    <option value="day">يوم واحد</option>
+                    <option value="week">أسبوع واحد</option>
+                    <option value="month" selected>شهر واحد</option>
+                    <option value="3months">3 أشهر</option>
+                    <option value="12months">12 شهرًا</option>
+                </select>
+
+                <div id="subscriptionInfo" class="info-box"></div>
+
+                <button
+                    id="createAccount"
+                    type="submit"
+                    class="btn btn-primary btn-full"
+                >
+                    إنشاء الحساب
+                </button>
+
+            </form>
+
+            <div id="message" class="message"></div>
 
         </div>
 
 
-        <div class="input-group">
+        <div class="card">
 
-            <label>
-                كلمة المرور
-            </label>
+            <h2>الجلسة الحالية</h2>
 
-            <input
-                id="password"
-                type="password"
-                placeholder="كلمة مرور الحساب"
-            >
+            <p class="description">
+                عند الانتهاء، سجّل الخروج من لوحة الإدارة.
+            </p>
 
-        </div>
-
-
-        <div class="input-group">
-
-            <label>
-                الاشتراك
-            </label>
-
-            <select id="subscription">
-
-                <option value="day">
-                    يوم واحد
-                </option>
-
-                <option value="week">
-                    أسبوع واحد
-                </option>
-
-                <option value="month">
-                    شهر واحد
-                </option>
-
-                <option value="3months">
-                    3 شهور
-                </option>
-
-                <option value="12months">
-                    12 شهر
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div id="subscriptionInfo"
-             class="subscription-info">
-        </div>
-
-
-        <button id="createAccount"
-                type="button">
-
-            فتح الحساب
-
-        </button>
-
-
-        <div id="message"
-             class="message">
-        </div>
-
-
-        <button id="logoutButton"
+            <button
+                id="logoutButton"
                 type="button"
-                class="secondary-button">
+                class="btn btn-danger btn-full"
+            >
+                تسجيل الخروج
+            </button>
 
-            تسجيل الخروج
+        </div>
 
-        </button>
+    </section>
 
+
+    <div class="footer">
+        BOK PEDRO · لوحة الإدارة
     </div>
 
 </div>
 
 
-<script type="module" src="./app.js"></script>
+<!-- ======================================
+     FIREBASE JAVASCRIPT
+======================================= -->
+
+<script type="module">
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    set
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+
+// ==========================================
+// FIREBASE PROJECT
+// ==========================================
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCRUpWEIvw927UEIjdl_G7ecdgZ_V-oDpo",
+    authDomain: "bok-pedro-new.firebaseapp.com",
+    databaseURL: "https://bok-pedro-new-default-rtdb.firebaseio.com",
+    projectId: "bok-pedro-new",
+    storageBucket: "bok-pedro-new.firebasestorage.app",
+    messagingSenderId: "79997674431",
+    appId: "1:79997674431:web:92c4b0db8d8d5d3863370a",
+    measurementId: "G-HJ3PYMKG5X"
+};
+
+
+// ==========================================
+// ADMIN INFORMATION
+// ==========================================
+
+const ADMIN_UID = "gL1GGUJ7FWS4zRZmzdaf60qqHMD3";
+
+const ADMIN_EMAIL = "website-reader@bok-ped.com";
+
+
+// ==========================================
+// INITIALIZE APPS
+// ==========================================
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getDatabase(app);
+
+
+// تطبيق مستقل لإنشاء حسابات العملاء
+const customerApp = initializeApp(
+    firebaseConfig,
+    "CustomerCreationApp"
+);
+
+const customerAuth = getAuth(customerApp);
+
+
+// ==========================================
+// HTML ELEMENTS
+// ==========================================
+
+const loginSection = document.getElementById("loginSection");
+const accountSection = document.getElementById("accountSection");
+
+const loginForm = document.getElementById("loginForm");
+const adminEmail = document.getElementById("adminEmail");
+const adminPassword = document.getElementById("adminPassword");
+const loginButton = document.getElementById("loginButton");
+const loginMessage = document.getElementById("loginMessage");
+
+const createAccountForm = document.getElementById("createAccountForm");
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const subscription = document.getElementById("subscription");
+const subscriptionInfo = document.getElementById("subscriptionInfo");
+const createAccount = document.getElementById("createAccount");
+const message = document.getElementById("message");
+
+const logoutButton = document.getElementById("logoutButton");
+
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function escapeHTML(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function loginMsg(text, type) {
+    loginMessage.textContent = text;
+    loginMessage.className = "message " + type;
+    loginMessage.style.display = "block";
+}
+
+
+function accountMsg(text, type) {
+    message.textContent = text;
+    message.className = "message " + type;
+    message.style.display = "block";
+}
+
+
+function isAdmin(user) {
+    return !!user &&
+        user.uid === ADMIN_UID &&
+        user.email === ADMIN_EMAIL;
+}
+
+
+function showAdminPanel() {
+    loginSection.classList.add("hidden");
+    accountSection.classList.remove("hidden");
+}
+
+
+function showLoginPanel() {
+    loginSection.classList.remove("hidden");
+    accountSection.classList.add("hidden");
+}
+
+
+function showDate(timestamp) {
+    return new Intl.DateTimeFormat("ar", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).format(new Date(timestamp));
+}
+
+
+// ==========================================
+// SUBSCRIPTION SETTINGS
+// ==========================================
+
+const subscriptionNames = {
+    day: "يوم واحد",
+    week: "أسبوع واحد",
+    month: "شهر واحد",
+    "3months": "3 أشهر",
+    "12months": "12 شهرًا"
+};
+
+
+function getDays(type) {
+    switch (type) {
+        case "day":
+            return 1;
+
+        case "week":
+            return 7;
+
+        case "month":
+            return 30;
+
+        case "3months":
+            return 90;
+
+        case "12months":
+            return 365;
+
+        default:
+            return 0;
+    }
+}
+
+
+function updateSubscriptionInfo() {
+    const type = subscription.value;
+    const days = getDays(type);
+
+    subscriptionInfo.textContent =
+        "مدة الاشتراك: " +
+        subscriptionNames[type] +
+        " — " + days + " يوم";
+}
+
+
+subscription.addEventListener(
+    "change",
+    updateSubscriptionInfo
+);
+
+updateSubscriptionInfo();
+
+
+// ==========================================
+// ACCOUNT NUMBER
+// ==========================================
+
+function generateAccountNumber() {
+    return String(
+        Math.floor(1000000 + Math.random() * 9000000)
+    );
+}
+
+
+// ==========================================
+// COPY TEXT
+// ==========================================
+
+async function copyText(text, button) {
+    const oldText = button.textContent;
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(String(text));
+        } else {
+            const textarea = document.createElement("textarea");
+
+            textarea.value = String(text);
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            const copied = document.execCommand("copy");
+
+            textarea.remove();
+
+            if (!copied) {
+                throw new Error("تعذر النسخ");
+            }
+        }
+
+        button.textContent = "تم النسخ ✓";
+
+    } catch (error) {
+        console.error("Copy error:", error);
+        button.textContent = "فشل النسخ";
+    }
+
+    setTimeout(function() {
+        button.textContent = oldText;
+    }, 1500);
+}
+
+
+// ==========================================
+// LOGIN BUTTON
+// ==========================================
+
+loginForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const email = adminEmail.value.trim();
+    const pass = adminPassword.value;
+
+    if (!email || !pass) {
+        loginMsg(
+            "أدخل البريد الإلكتروني وكلمة المرور.",
+            "error"
+        );
+        return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "جاري تسجيل الدخول...";
+
+    try {
+
+        const result = await signInWithEmailAndPassword(
+            auth,
+            email,
+            pass
+        );
+
+        const user = result.user;
+
+        if (!isAdmin(user)) {
+
+            await signOut(auth);
+
+            loginMsg(
+                "هذا الحساب غير مصرح له بدخول لوحة الإدارة.",
+                "error"
+            );
+
+            return;
+        }
+
+        await user.getIdToken(true);
+
+        showAdminPanel();
+
+        loginMsg(
+            "تم تسجيل الدخول بنجاح.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "BOK PEDRO LOGIN ERROR:",
+            error.code,
+            error.message
+        );
+
+        let text;
+
+        switch (error.code) {
+
+            case "auth/invalid-credential":
+            case "auth/invalid-login-credentials":
+            case "auth/wrong-password":
+                text = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+                break;
+
+            case "auth/user-not-found":
+                text = "حساب المدير غير موجود في المشروع الجديد.";
+                break;
+
+            case "auth/invalid-email":
+                text = "صيغة البريد الإلكتروني غير صحيحة.";
+                break;
+
+            case "auth/user-disabled":
+                text = "حساب المدير معطّل.";
+                break;
+
+            case "auth/too-many-requests":
+                text = "محاولات كثيرة. انتظر قليلًا ثم حاول مجددًا.";
+                break;
+
+            case "auth/network-request-failed":
+                text = "فشل الاتصال بالإنترنت.";
+                break;
+
+            case "auth/operation-not-allowed":
+                text = "فعّل Email/Password في Firebase Authentication.";
+                break;
+
+            case "auth/unauthorized-domain":
+                text = "أضف نطاق موقعك إلى Authorized domains في Firebase.";
+                break;
+
+            case "auth/invalid-api-key":
+                text = "مفتاح Firebase API غير صالح.";
+                break;
+
+            default:
+                text =
+                    "رمز الخطأ: " + (error.code || "غير معروف") +
+                    "\nالتفاصيل: " + (error.message || "خطأ غير معروف");
+        }
+
+        loginMsg(text, "error");
+
+    } finally {
+
+        loginButton.disabled = false;
+        loginButton.textContent = "تسجيل الدخول";
+
+    }
+});
+
+
+// ==========================================
+// RESTORE ADMIN SESSION
+// ==========================================
+
+onAuthStateChanged(auth, function(user) {
+
+    if (isAdmin(user)) {
+        showAdminPanel();
+    } else {
+        showLoginPanel();
+    }
+
+});
+
+
+// ==========================================
+// CREATE CUSTOMER ACCOUNT
+// ==========================================
+
+createAccountForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!isAdmin(auth.currentUser)) {
+        accountMsg(
+            "يجب تسجيل الدخول بحساب المدير أولًا.",
+            "error"
+        );
+        return;
+    }
+
+    const name = username.value.trim();
+    const customerPassword = password.value;
+    const type = subscription.value;
+
+    if (!name) {
+        accountMsg("أدخل اسم العميل.", "error");
+        return;
+    }
+
+    if (customerPassword.length < 6) {
+        accountMsg(
+            "كلمة مرور العميل يجب أن تتكون من 6 أحرف على الأقل.",
+            "error"
+        );
+        return;
+    }
+
+    const days = getDays(type);
+
+    if (!days) {
+        accountMsg("اختر مدة اشتراك صحيحة.", "error");
+        return;
+    }
+
+    createAccount.disabled = true;
+    createAccount.textContent = "جاري إنشاء الحساب...";
+
+    try {
+
+        // البحث عن رقم حساب غير مستخدم
+        let accountNumber = "";
+        let available = false;
+
+        for (let i = 0; i < 30; i++) {
+
+            const candidate = generateAccountNumber();
+
+            const snapshot = await get(
+                ref(db, "accountNumbers/" + candidate)
+            );
+
+            if (!snapshot.exists()) {
+                accountNumber = candidate;
+                available = true;
+                break;
+            }
+        }
+
+        if (!available) {
+            throw new Error(
+                "تعذر العثور على رقم حساب متاح. حاول مرة أخرى."
+            );
+        }
+
+        // البريد الداخلي للعميل في المشروع الجديد
+        const customerEmail =
+            accountNumber + "@bok-pedro-new.firebaseapp.com";
+
+        // إنشاء حساب Firebase للعميل
+        const customerResult =
+            await createUserWithEmailAndPassword(
+                customerAuth,
+                customerEmail,
+                customerPassword
+            );
+
+        const uid = customerResult.user.uid;
+
+        const now = Date.now();
+
+        const end = now + (
+            days * 24 * 60 * 60 * 1000
+        );
+
+        // بيانات المستخدم
+        const userData = {
+            username: name,
+            accountNumber: accountNumber,
+            uid: uid,
+            email: customerEmail,
+
+            createdAt: now,
+            updatedAt: now,
+
+            subscriptionType: type,
+            subscriptionName: subscriptionNames[type],
+            subscriptionStart: now,
+            subscriptionEnd: end,
+
+            active: true,
+            disabled: false
+        };
+
+        // حفظ بيانات المستخدم
+        await set(
+            ref(db, "users/" + uid),
+            userData
+        );
+
+        // حفظ رقم الحساب وربطه بالمستخدم
+        await set(
+            ref(db, "accountNumbers/" + accountNumber),
+            {
+                uid: uid
+            }
+        );
+
+        // الخروج من جلسة العميل فقط
+        await signOut(customerAuth);
+
+        // عرض النتيجة
+        message.innerHTML = `
+            <div class="account-box">
+
+                <div class="success-icon">✓</div>
+
+                <span class="success-title">
+                    تم إنشاء الحساب بنجاح
+                </span>
+
+                <div class="account-label">اسم العميل</div>
+                <div class="account-value">${escapeHTML(name)}</div>
+
+                <div class="account-label">رقم الحساب</div>
+                <div class="account-number">${escapeHTML(accountNumber)}</div>
+
+                <button
+                    type="button"
+                    class="copy-button"
+                    id="copyAccountButton">
+                    نسخ رقم الحساب
+                </button>
+
+                <div class="account-label">كلمة المرور</div>
+                <div class="account-password">${escapeHTML(customerPassword)}</div>
+
+                <button
+                    type="button"
+                    class="copy-button"
+                    id="copyPasswordButton">
+                    نسخ كلمة المرور
+                </button>
+
+                <div class="account-label">مدة الاشتراك</div>
+                <div class="account-value">${escapeHTML(subscriptionNames[type])}</div>
+
+                <div class="account-label">تاريخ انتهاء الاشتراك</div>
+                <div class="account-value">${escapeHTML(showDate(end))}</div>
+
+                <div class="success-text">
+                    احتفظ برقم الحساب وكلمة المرور في مكان آمن.
+                </div>
+
+            </div>
+        `;
+
+        message.className = "message success";
+        message.style.display = "block";
+
+        const copyAccountButton =
+            document.getElementById("copyAccountButton");
+
+        const copyPasswordButton =
+            document.getElementById("copyPasswordButton");
+
+        copyAccountButton.addEventListener("click", function() {
+            copyText(accountNumber, copyAccountButton);
+        });
+
+        copyPasswordButton.addEventListener("click", function() {
+            copyText(customerPassword, copyPasswordButton);
+        });
+
+        username.value = "";
+        password.value = "";
+
+    } catch (error) {
+
+        console.error(
+            "CREATE ACCOUNT ERROR:",
+            error.code,
+            error.message
+        );
+
+        let errorText = error.message || "خطأ غير معروف.";
+
+        if (error.code === "auth/email-already-in-use") {
+            errorText = "رقم الحساب مرتبط ببريد مستخدم مسبقًا.";
+        } else if (error.code === "auth/weak-password") {
+            errorText = "كلمة المرور ضعيفة.";
+        } else if (error.code === "auth/operation-not-allowed") {
+            errorText = "فعّل Email/Password في Firebase Authentication.";
+        } else if (error.code === "auth/network-request-failed") {
+            errorText = "تحقق من اتصال الإنترنت.";
+        } else if (error.code === "PERMISSION_DENIED") {
+            errorText = "Firebase رفض الكتابة. راجع قواعد قاعدة البيانات.";
+        }
+
+        accountMsg(
+            "تعذر إنشاء الحساب.\n" + errorText,
+            "error"
+        );
+
+        try {
+            await signOut(customerAuth);
+        } catch (signOutError) {
+            console.error(signOutError);
+        }
+
+    } finally {
+
+        createAccount.disabled = false;
+        createAccount.textContent = "إنشاء الحساب";
+
+    }
+});
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+logoutButton.addEventListener("click", async function() {
+
+    logoutButton.disabled = true;
+
+    try {
+
+        await signOut(auth);
+
+        adminPassword.value = "";
+
+        loginMessage.textContent = "";
+        loginMessage.style.display = "none";
+
+        message.textContent = "";
+        message.style.display = "none";
+
+        showLoginPanel();
+
+    } catch (error) {
+
+        console.error("LOGOUT ERROR:", error);
+
+        accountMsg(
+            "تعذر تسجيل الخروج: " + error.message,
+            "error"
+        );
+
+    } finally {
+
+        logoutButton.disabled = false;
+
+    }
+});
+
+</script>
 
 </body>
 </html>
