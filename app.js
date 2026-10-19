@@ -1,143 +1,127 @@
+// ======================================================
+// BOK PEDRO - ADMIN PANEL
+// Firebase: bok-pedro-new
+// ======================================================
+
 import {
-    initializeApp
+    initializeApp,
+    getApps,
+    getApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
     getAuth,
     signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
     getDatabase,
     ref,
     get,
-    set
+    set,
+    update,
+    push,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
-/*
-==================================================
-FIREBASE
-==================================================
-*/
+// ======================================================
+// 1. FIREBASE CONFIGURATION
+// ======================================================
 
 const firebaseConfig = {
-
-    apiKey:
-        "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
-
-    authDomain:
-        "bok-ped.firebaseapp.com",
-
-    projectId:
-        "bok-ped",
-
-    storageBucket:
-        "bok-ped.firebasestorage.app",
-
-    messagingSenderId:
-        "812838230843",
-
-    appId:
-        "1:812838230843:web:f3bd5f59343db42b52b51e",
-
-    measurementId:
-        "G-26SMZR0QCC"
-
+    apiKey: "AIzaSyCRUpWEIvw927UEIjdl_G7ecdgZ_V-oDpo",
+    authDomain: "bok-pedro-new.firebaseapp.com",
+    databaseURL: "https://bok-pedro-new-default-rtdb.firebaseio.com",
+    projectId: "bok-pedro-new",
+    storageBucket: "bok-pedro-new.firebasestorage.app",
+    messagingSenderId: "79997674431",
+    appId: "1:79997674431:web:92c4b0db8d8d5d3863370a",
+    measurementId: "G-HJ3PYMKG5X"
 };
 
 
-const ADMIN_UID =
-    "zuwXPgS4TPYF5GyAYEPEOrsYV0z1";
+// ======================================================
+// 2. ADMIN INFORMATION
+// ======================================================
 
-const ADMIN_EMAIL =
-    "website-reader@bok-ped.com";
+const ADMIN_UID = "gL1GGUJ7FWS4zRZmzdaf60qqHMD3";
 
-
-const app =
-    initializeApp(firebaseConfig);
-
-const auth =
-    getAuth(app);
-
-const db =
-    getDatabase(app);
+const ADMIN_EMAIL = "website-reader@bok-ped.com";
 
 
-/*
-==================================================
-CUSTOMER AUTH
-==================================================
-*/
+// ======================================================
+// 3. INITIALIZE FIREBASE
+// ======================================================
 
-const customerApp =
-    initializeApp(
-        firebaseConfig,
-        "CustomerCreationApp"
-    );
+const app = initializeApp(firebaseConfig);
 
-const customerAuth =
-    getAuth(customerApp);
+const auth = getAuth(app);
+
+const db = getDatabase(app);
 
 
-/*
-==================================================
-ELEMENTS
-==================================================
-*/
+// تطبيق منفصل لإنشاء حسابات العملاء.
+// يساعد في إبقاء جلسة المدير مستقلة عن جلسة العميل.
 
-const loginSection =
-    document.getElementById("loginSection");
+const customerApp = initializeApp(
+    firebaseConfig,
+    "CustomerCreationApp"
+);
 
-const accountSection =
-    document.getElementById("accountSection");
-
-const adminEmail =
-    document.getElementById("adminEmail");
-
-const adminPassword =
-    document.getElementById("adminPassword");
-
-const loginButton =
-    document.getElementById("loginButton");
-
-const loginMessage =
-    document.getElementById("loginMessage");
-
-const username =
-    document.getElementById("username");
-
-const password =
-    document.getElementById("password");
-
-const subscription =
-    document.getElementById("subscription");
-
-const subscriptionInfo =
-    document.getElementById("subscriptionInfo");
-
-const createAccount =
-    document.getElementById("createAccount");
-
-const message =
-    document.getElementById("message");
-
-const logoutButton =
-    document.getElementById("logoutButton");
+const customerAuth = getAuth(customerApp);
 
 
-/*
-==================================================
-ESCAPE HTML
-==================================================
-*/
+// ======================================================
+// 4. HELPER FUNCTIONS
+// ======================================================
+
+function getElement() {
+    for (let i = 0; i < arguments.length; i++) {
+        const element = document.getElementById(arguments[i]);
+
+        if (element) {
+            return element;
+        }
+    }
+
+    return null;
+}
+
+
+function setText(ids, value) {
+    const element = getElement.apply(null, ids);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+
+function showMessage(message) {
+    alert(message);
+}
+
+
+function formatDate(timestamp) {
+    if (!timestamp) {
+        return "غير محدد";
+    }
+
+    const date = new Date(Number(timestamp));
+
+    if (isNaN(date.getTime())) {
+        return "غير محدد";
+    }
+
+    return date.toLocaleDateString("ar");
+}
+
 
 function escapeHTML(value) {
-
-    return String(value)
+    return String(value == null ? "" : value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -146,902 +130,798 @@ function escapeHTML(value) {
 }
 
 
-/*
-==================================================
-LOGIN MESSAGE
-==================================================
-*/
+function generatePassword(length) {
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
 
-function loginMsg(text, type) {
+    let password = "";
 
-    loginMessage.textContent =
-        text;
+    for (let i = 0; i < length; i++) {
+        password += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
+    }
 
-    loginMessage.style.display =
-        "block";
-
-    loginMessage.className =
-        "message " + type;
+    return password;
 }
 
 
-/*
-==================================================
-ACCOUNT MESSAGE
-==================================================
-*/
+// ======================================================
+// 5. SUBSCRIPTION SETTINGS
+// ======================================================
 
-function accountMsg(text, type) {
+function getSubscriptionDays(type) {
+    switch (type) {
+        case "day":
+            return 1;
 
-    message.innerHTML =
-        escapeHTML(text)
-        .replace(/\n/g, "<br>");
+        case "week":
+            return 7;
 
-    message.style.display =
-        "block";
+        case "month":
+            return 30;
 
-    message.className =
-        "message " + type;
+        case "3months":
+            return 90;
+
+        case "12months":
+            return 365;
+
+        default:
+            return 30;
+    }
 }
 
 
-/*
-==================================================
-SUBSCRIPTION
-==================================================
-*/
+function getSubscriptionName(type) {
+    switch (type) {
+        case "day":
+            return "يوم واحد";
 
-const subscriptionNames = {
+        case "week":
+            return "أسبوع";
 
-    day:
-        "يوم واحد",
+        case "month":
+            return "شهر";
 
-    week:
-        "أسبوع واحد",
+        case "3months":
+            return "3 أشهر";
 
-    month:
-        "شهر واحد",
+        case "12months":
+            return "12 شهرًا";
 
-    "3months":
-        "3 شهور",
-
-    "12months":
-        "12 شهر"
-
-};
-
-
-function getDays(type) {
-
-    if (type === "day")
-        return 1;
-
-    if (type === "week")
-        return 7;
-
-    if (type === "month")
-        return 30;
-
-    if (type === "3months")
-        return 90;
-
-    if (type === "12months")
-        return 365;
-
-    return 1;
+        default:
+            return "شهر";
+    }
 }
 
 
-function updateSubscriptionInfo() {
+// ======================================================
+// 6. ADMIN LOGIN
+// ======================================================
 
-    const type =
-        subscription.value;
+async function adminLogin(event) {
+    if (event) {
+        event.preventDefault();
+    }
 
-    const days =
-        getDays(type);
-
-    subscriptionInfo.textContent =
-        "مدة الاشتراك: " +
-        subscriptionNames[type] +
-        " (" +
-        days +
-        " يوم)";
-}
-
-
-subscription.addEventListener(
-    "change",
-    updateSubscriptionInfo
-);
-
-updateSubscriptionInfo();
-
-
-/*
-==================================================
-GENERATE ACCOUNT NUMBER
-==================================================
-*/
-
-function generateAccountNumber() {
-
-    return String(
-        Math.floor(
-            1000000 +
-            Math.random() * 9000000
-        )
+    const emailInput = getElement(
+        "adminEmail",
+        "loginEmail",
+        "email"
     );
 
-}
-
-
-/*
-==================================================
-FORMAT DATE
-==================================================
-*/
-
-function formatDate(timestamp) {
-
-    return new Intl.DateTimeFormat(
-        "ar",
-        {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    ).format(
-        new Date(timestamp)
+    const passwordInput = getElement(
+        "adminPassword",
+        "loginPassword",
+        "password"
     );
 
-}
+    if (!emailInput || !passwordInput) {
+        showMessage(
+            "لم يتم العثور على حقول البريد وكلمة المرور في الصفحة."
+        );
+        return;
+    }
 
+    const email = emailInput.value.trim();
 
-/*
-==================================================
-COPY TEXT
-==================================================
-*/
+    const password = passwordInput.value;
 
-async function copyText(text, button) {
+    if (!email || !password) {
+        showMessage("أدخل البريد الإلكتروني وكلمة المرور.");
+        return;
+    }
 
     try {
-
-        await navigator.clipboard.writeText(
-            text
+        const result = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
         );
 
-        const oldText =
-            button.textContent;
+        if (
+            result.user.uid !== ADMIN_UID ||
+            result.user.email !== ADMIN_EMAIL
+        ) {
+            await signOut(auth);
 
-        button.textContent =
-            "تم النسخ ✓";
+            showMessage("هذا الحساب غير مصرح له بدخول لوحة الإدارة.");
 
-        setTimeout(
-            function () {
+            return;
+        }
 
-                button.textContent =
-                    oldText;
+        showAdminPanel();
 
-            },
-            1500
-        );
+        showMessage("تم تسجيل الدخول بنجاح.");
 
     } catch (error) {
+        console.error("Admin login error:", error);
 
-        const input =
-            document.createElement("textarea");
-
-        input.value =
-            text;
-
-        document.body.appendChild(
-            input
+        showMessage(
+            "فشل تسجيل الدخول. تحقق من البريد وكلمة المرور وإعدادات Firebase."
         );
-
-        input.select();
-
-        document.execCommand(
-            "copy"
-        );
-
-        input.remove();
-
-        const oldText =
-            button.textContent;
-
-        button.textContent =
-            "تم النسخ ✓";
-
-        setTimeout(
-            function () {
-
-                button.textContent =
-                    oldText;
-
-            },
-            1500
-        );
-
     }
-
 }
 
 
-/*
-==================================================
-LOGIN
-==================================================
-*/
+// ======================================================
+// 7. SHOW ADMIN PANEL
+// ======================================================
 
-loginButton.addEventListener(
-    "click",
-    async function () {
+function showAdminPanel() {
+    const loginSection = getElement(
+        "loginSection",
+        "loginContainer",
+        "login-form-container"
+    );
 
-        const email =
-            adminEmail.value.trim();
+    const adminSection = getElement(
+        "adminPanel",
+        "dashboard",
+        "adminSection"
+    );
 
-        const pass =
-            adminPassword.value;
-
-
-        if (!email) {
-
-            loginMsg(
-                "أدخل البريد الإلكتروني.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (!pass) {
-
-            loginMsg(
-                "أدخل كلمة المرور.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        loginButton.disabled =
-            true;
-
-        loginButton.textContent =
-            "جاري الدخول...";
-
-
-        try {
-
-            const result =
-                await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    pass
-                );
-
-
-            const user =
-                result.user;
-
-
-            if (
-                user.uid !== ADMIN_UID ||
-                user.email !== ADMIN_EMAIL
-            ) {
-
-                await signOut(auth);
-
-                loginMsg(
-                    "هذا الحساب غير مصرح له بالدخول.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            loginMsg(
-                "تم تسجيل الدخول.",
-                "success"
-            );
-
-
-            loginSection.style.display =
-                "none";
-
-            accountSection.style.display =
-                "block";
-
-
-        } catch (error) {
-
-            console.error(error);
-
-
-            let text =
-                "فشل تسجيل الدخول.";
-
-
-            if (
-                error.code ===
-                "auth/invalid-credential"
-            ) {
-
-                text =
-                    "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
-
-            } else if (
-                error.code ===
-                "auth/invalid-email"
-            ) {
-
-                text =
-                    "البريد الإلكتروني غير صحيح.";
-
-            } else if (
-                error.code ===
-                "auth/user-not-found"
-            ) {
-
-                text =
-                    "الحساب غير موجود.";
-
-            } else if (
-                error.code ===
-                "auth/wrong-password"
-            ) {
-
-                text =
-                    "كلمة المرور غير صحيحة.";
-
-            } else if (
-                error.code ===
-                "auth/network-request-failed"
-            ) {
-
-                text =
-                    "تحقق من الإنترنت.";
-
-            }
-
-
-            loginMsg(
-                text,
-                "error"
-            );
-
-
-        } finally {
-
-            loginButton.disabled =
-                false;
-
-            loginButton.textContent =
-                "تسجيل الدخول";
-
-        }
-
+    if (loginSection) {
+        loginSection.style.display = "none";
     }
-);
+
+    if (adminSection) {
+        adminSection.style.display = "block";
+    }
+
+    setText(
+        ["adminEmailDisplay", "currentAdminEmail"],
+        ADMIN_EMAIL
+    );
+}
 
 
-/*
-==================================================
-CHECK SESSION
-==================================================
-*/
+// ======================================================
+// 8. SHOW LOGIN PAGE
+// ======================================================
 
-onAuthStateChanged(
-    auth,
-    function (user) {
+function showLoginPage() {
+    const loginSection = getElement(
+        "loginSection",
+        "loginContainer",
+        "login-form-container"
+    );
+
+    const adminSection = getElement(
+        "adminPanel",
+        "dashboard",
+        "adminSection"
+    );
+
+    if (loginSection) {
+        loginSection.style.display = "block";
+    }
+
+    if (adminSection) {
+        adminSection.style.display = "none";
+    }
+}
+
+
+// ======================================================
+// 9. ADMIN SESSION CHECK
+// ======================================================
+
+onAuthStateChanged(auth, function(user) {
+    if (
+        user &&
+        user.uid === ADMIN_UID &&
+        user.email === ADMIN_EMAIL
+    ) {
+        showAdminPanel();
+    } else {
+        if (user) {
+            signOut(auth).catch(function(error) {
+                console.error(error);
+            });
+        }
+
+        showLoginPage();
+    }
+});
+
+
+// ======================================================
+// 10. GENERATE UNIQUE ACCOUNT NUMBER
+// ======================================================
+
+async function generateUniqueAccountNumber() {
+    for (let attempt = 0; attempt < 30; attempt++) {
+        const accountNumber = String(
+            Math.floor(1000000 + Math.random() * 9000000)
+        );
+
+        const accountRef = ref(
+            db,
+            "accountNumbers/" + accountNumber
+        );
+
+        const snapshot = await get(accountRef);
+
+        if (!snapshot.exists()) {
+            return accountNumber;
+        }
+    }
+
+    throw new Error(
+        "تعذر إنشاء رقم حساب فريد. حاول مرة أخرى."
+    );
+}
+
+
+// ======================================================
+// 11. CREATE CUSTOMER ACCOUNT
+// ======================================================
+
+async function createCustomer(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    const currentAdmin = auth.currentUser;
+
+    if (
+        !currentAdmin ||
+        currentAdmin.uid !== ADMIN_UID ||
+        currentAdmin.email !== ADMIN_EMAIL
+    ) {
+        showMessage("يجب تسجيل الدخول بحساب المدير أولًا.");
+        return;
+    }
+
+    const usernameInput = getElement(
+        "customerName",
+        "username",
+        "customerUsername"
+    );
+
+    const subscriptionInput = getElement(
+        "subscriptionType",
+        "subscription",
+        "subscriptionDuration"
+    );
+
+    if (!usernameInput || !subscriptionInput) {
+        showMessage(
+            "تأكد من وجود حقلي اسم العميل ونوع الاشتراك في HTML."
+        );
+        return;
+    }
+
+    const username = usernameInput.value.trim();
+
+    const subscriptionType = subscriptionInput.value;
+
+    if (!username) {
+        showMessage("أدخل اسم العميل.");
+        return;
+    }
+
+    const allowedTypes = [
+        "day",
+        "week",
+        "month",
+        "3months",
+        "12months"
+    ];
+
+    if (allowedTypes.indexOf(subscriptionType) === -1) {
+        showMessage("نوع الاشتراك غير صحيح.");
+        return;
+    }
+
+    let customerPassword = generatePassword(10);
+
+    let customerUid = null;
+
+    let accountNumber = null;
+
+    let customerCreated = false;
+
+    try {
+        const createButton = getElement(
+            "createCustomerButton",
+            "createAccountButton",
+            "createUserBtn"
+        );
+
+        if (createButton) {
+            createButton.disabled = true;
+        }
+
+        // إعادة التحقق من جلسة المدير قبل العملية الحساسة.
+
+        await currentAdmin.getIdToken(true);
 
         if (
-            user &&
-            user.uid === ADMIN_UID &&
-            user.email === ADMIN_EMAIL
+            auth.currentUser.uid !== ADMIN_UID ||
+            auth.currentUser.email !== ADMIN_EMAIL
         ) {
+            throw new Error("جلسة المدير غير صالحة.");
+        }
 
-            loginSection.style.display =
-                "none";
+        // إنشاء رقم حساب غير مستخدم.
 
-            accountSection.style.display =
-                "block";
+        accountNumber = await generateUniqueAccountNumber();
 
+        // البريد الذي سيُستخدم في Firebase Authentication.
+
+        const customerEmail =
+            accountNumber + "@bok-pedro-new.firebaseapp.com";
+
+        // إنشاء حساب العميل في المشروع الجديد.
+
+        const credential = await import(
+            "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js"
+        ).then(function(module) {
+            return module.createUserWithEmailAndPassword(
+                customerAuth,
+                customerEmail,
+                customerPassword
+            );
+        });
+
+        customerUid = credential.user.uid;
+
+        customerCreated = true;
+
+        const now = Date.now();
+
+        const subscriptionDays =
+            getSubscriptionDays(subscriptionType);
+
+        const subscriptionEnd =
+            now + subscriptionDays * 24 * 60 * 60 * 1000;
+
+        // حفظ بيانات العميل.
+
+        const userData = {
+            username: username,
+            accountNumber: accountNumber,
+            uid: customerUid,
+            email: customerEmail,
+
+            createdAt: now,
+
+            subscriptionType: subscriptionType,
+
+            subscriptionName:
+                getSubscriptionName(subscriptionType),
+
+            subscriptionStart: now,
+
+            subscriptionEnd: subscriptionEnd,
+
+            active: true,
+
+            disabled: false,
+
+            updatedAt: now
+        };
+
+        // حفظ بيانات الحساب في قاعدة البيانات.
+
+        await set(
+            ref(db, "users/" + customerUid),
+            userData
+        );
+
+        // ربط رقم الحساب بمعرف العميل.
+
+        await set(
+            ref(db, "accountNumbers/" + accountNumber),
+            {
+                uid: customerUid,
+                accountNumber: accountNumber,
+                createdAt: now
+            }
+        );
+
+        // تسجيل نجاح العملية في الواجهة.
+
+        showCreatedCustomer({
+            username: username,
+            accountNumber: accountNumber,
+            password: customerPassword,
+            email: customerEmail,
+            subscriptionName:
+                getSubscriptionName(subscriptionType),
+            subscriptionEnd: subscriptionEnd
+        });
+
+        usernameInput.value = "";
+
+        showMessage("تم إنشاء حساب العميل بنجاح.");
+
+    } catch (error) {
+        console.error("Create customer error:", error);
+
+        if (customerCreated && customerUid) {
+            showMessage(
+                "تم إنشاء حساب المصادقة، لكن تعذر إكمال حفظ بياناته. " +
+                "راجع صلاحيات Realtime Database قبل إعادة المحاولة. " +
+                "رقم الحساب: " + accountNumber
+            );
         } else {
-
-            loginSection.style.display =
-                "block";
-
-            accountSection.style.display =
-                "none";
-
-        }
-
-    }
-);
-
-
-/*
-==================================================
-CREATE ACCOUNT
-==================================================
-*/
-
-createAccount.addEventListener(
-    "click",
-    async function () {
-
-        const admin =
-            auth.currentUser;
-
-
-        if (
-            !admin ||
-            admin.uid !== ADMIN_UID ||
-            admin.email !== ADMIN_EMAIL
-        ) {
-
-            accountMsg(
-                "يجب تسجيل الدخول بالحساب الإداري.",
-                "error"
+            showMessage(
+                "فشل إنشاء الحساب: " +
+                (error.message || "خطأ غير معروف")
             );
-
-            return;
         }
 
-
-        const name =
-            username.value.trim();
-
-        const customerPassword =
-            password.value;
-
-        const type =
-            subscription.value;
-
-
-        if (!name) {
-
-            accountMsg(
-                "أدخل اسم العميل.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (
-            customerPassword.length < 3
-        ) {
-
-            accountMsg(
-                "كلمة المرور يجب أن تكون 3 أحرف على الأقل.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        createAccount.disabled =
-            true;
-
-        createAccount.textContent =
-            "جاري فتح الحساب...";
-
-
-        try {
-
-            /*
-            ==========================================
-            FIND FREE ACCOUNT NUMBER
-            ==========================================
-            */
-
-            let accountNumber;
-
-            let exists = true;
-
-
-            while (exists) {
-
-                accountNumber =
-                    generateAccountNumber();
-
-
-                const accountRef =
-                    ref(
-                        db,
-                        "accountNumbers/" +
-                        accountNumber
-                    );
-
-
-                const snapshot =
-                    await get(accountRef);
-
-
-                exists =
-                    snapshot.exists();
-
+    } finally {
+        if (customerAuth.currentUser) {
+            try {
+                await signOut(customerAuth);
+            } catch (error) {
+                console.error("Customer sign out error:", error);
             }
-
-
-            /*
-            ==========================================
-            CUSTOMER EMAIL
-            ==========================================
-            */
-
-            const email =
-                accountNumber +
-                "@bok-ped.firebaseapp.com";
-
-
-            /*
-            ==========================================
-            CREATE FIREBASE CUSTOMER
-            ==========================================
-            */
-
-            const customerResult =
-                await createUserWithEmailAndPassword(
-                    customerAuth,
-                    email,
-                    customerPassword
-                );
-
-
-            const uid =
-                customerResult.user.uid;
-
-
-            /*
-            ==========================================
-            DATES
-            ==========================================
-            */
-
-            const now =
-                Date.now();
-
-
-            const end =
-                now +
-                (
-                    getDays(type) *
-                    24 *
-                    60 *
-                    60 *
-                    1000
-                );
-
-
-            /*
-            ==========================================
-            USER DATA
-            ==========================================
-            */
-
-            const userData = {
-
-                username:
-                    name,
-
-                accountNumber:
-                    accountNumber,
-
-                uid:
-                    uid,
-
-                createdAt:
-                    now,
-
-                subscriptionType:
-                    type,
-
-                subscriptionName:
-                    subscriptionNames[type],
-
-                subscriptionStart:
-                    now,
-
-                subscriptionEnd:
-                    end,
-
-                active:
-                    true
-
-            };
-
-
-            /*
-            ==========================================
-            SAVE USER
-            ==========================================
-            */
-
-            await set(
-                ref(
-                    db,
-                    "users/" + uid
-                ),
-                userData
-            );
-
-
-            /*
-            ==========================================
-            SAVE ACCOUNT NUMBER
-            ==========================================
-            */
-
-            await set(
-                ref(
-                    db,
-                    "accountNumbers/" +
-                    accountNumber
-                ),
-                {
-                    uid: uid
-                }
-            );
-
-
-            /*
-            ==========================================
-            SIGN OUT CUSTOMER
-            ==========================================
-            */
-
-            await signOut(
-                customerAuth
-            );
-
-
-            /*
-            ==========================================
-            SUCCESS SCREEN
-            ==========================================
-            */
-
-            const safeName =
-                escapeHTML(name);
-
-            const safeAccount =
-                escapeHTML(accountNumber);
-
-            const safePassword =
-                escapeHTML(customerPassword);
-
-            const safeSubscription =
-                escapeHTML(
-                    subscriptionNames[type]
-                );
-
-            const safeEnd =
-                escapeHTML(
-                    formatDate(end)
-                );
-
-
-            message.innerHTML = `
-
-                <div class="account-box">
-
-                    <div class="success-icon">
-                        ✓
-                    </div>
-
-                    <span class="success-title">
-                        تم إنشاء الحساب بنجاح 🎉
-                    </span>
-
-
-                    <div class="account-label">
-                        اسم المستخدم
-                    </div>
-
-                    <strong>
-                        ${safeName}
-                    </strong>
-
-
-                    <div class="account-label">
-                        رقم الحساب
-                    </div>
-
-                    <div
-                        class="account-number"
-                        id="createdAccountNumber"
-                    >
-                        ${safeAccount}
-                    </div>
-
-                    <button
-                        type="button"
-                        class="account-copy"
-                        id="copyAccountButton"
-                    >
-                        نسخ رقم الحساب
-                    </button>
-
-
-                    <div class="account-label">
-                        كلمة المرور
-                    </div>
-
-                    <div
-                        class="account-password"
-                        id="createdPassword"
-                    >
-                        ${safePassword}
-                    </div>
-
-                    <button
-                        type="button"
-                        class="password-copy"
-                        id="copyPasswordButton"
-                    >
-                        نسخ كلمة المرور
-                    </button>
-
-
-                    <div class="account-label">
-                        مدة الاشتراك
-                    </div>
-
-                    <strong>
-                        ${safeSubscription}
-                    </strong>
-
-
-                    <div class="account-label">
-                        ينتهي الاشتراك في
-                    </div>
-
-                    <strong>
-                        ${safeEnd}
-                    </strong>
-
-
-                    <div class="success-text">
-                        احتفظ برقم الحساب وكلمة المرور.
-                    </div>
-
-                </div>
-
-            `;
-
-
-            message.style.display =
-                "block";
-
-            message.className =
-                "message success";
-
-
-            /*
-            ==========================================
-            COPY ACCOUNT
-            ==========================================
-            */
-
-            const copyAccountButton =
-                document.getElementById(
-                    "copyAccountButton"
-                );
-
-
-            copyAccountButton.addEventListener(
-                "click",
-                function () {
-
-                    copyText(
-                        accountNumber,
-                        copyAccountButton
-                    );
-
-                }
-            );
-
-
-            /*
-            ==========================================
-            COPY PASSWORD
-            ==========================================
-            */
-
-            const copyPasswordButton =
-                document.getElementById(
-                    "copyPasswordButton"
-                );
-
-
-            copyPasswordButton.addEventListener(
-                "click",
-                function () {
-
-                    copyText(
-                        customerPassword,
-                        copyPasswordButton
-                    );
-
-                }
-            );
-
-
-            /*
-            ==========================================
-            CLEAR FORM
-            ==========================================
-            */
-
-            username.value =
-                "";
-
-            password.value =
-                "";
-
-
-        } catch (error) {
-
-            console.error(error);
-
-
-            accountMsg(
-                "حدث خطأ: " +
-                error.message,
-                "error"
-            );
-
-        } finally {
-
-            createAccount.disabled =
-                false;
-
-            createAccount.textContent =
-                "فتح الحساب";
-
         }
 
+        const createButton = getElement(
+            "createCustomerButton",
+            "createAccountButton",
+            "createUserBtn"
+        );
+
+        if (createButton) {
+            createButton.disabled = false;
+        }
     }
-);
+}
 
 
-/*
-==================================================
-LOGOUT
-==================================================
-*/
+// ======================================================
+// 12. DISPLAY CREATED CUSTOMER
+// ======================================================
 
-logoutButton.addEventListener(
-    "click",
-    async function () {
+function showCreatedCustomer(customer) {
+    const resultContainer = getElement(
+        "customerResult",
+        "createdCustomer",
+        "resultContainer"
+    );
 
+    const accountElement = getElement(
+        "resultAccountNumber",
+        "createdAccountNumber",
+        "accountNumberResult"
+    );
+
+    const passwordElement = getElement(
+        "resultPassword",
+        "createdPassword",
+        "passwordResult"
+    );
+
+    const usernameElement = getElement(
+        "resultUsername",
+        "createdUsername",
+        "usernameResult"
+    );
+
+    const emailElement = getElement(
+        "resultEmail",
+        "createdEmail",
+        "emailResult"
+    );
+
+    const subscriptionElement = getElement(
+        "resultSubscription",
+        "createdSubscription"
+    );
+
+    const endElement = getElement(
+        "resultSubscriptionEnd",
+        "subscriptionEnd"
+    );
+
+    if (accountElement) {
+        accountElement.textContent = customer.accountNumber;
+    }
+
+    if (passwordElement) {
+        passwordElement.textContent = customer.password;
+    }
+
+    if (usernameElement) {
+        usernameElement.textContent = customer.username;
+    }
+
+    if (emailElement) {
+        emailElement.textContent = customer.email;
+    }
+
+    if (subscriptionElement) {
+        subscriptionElement.textContent =
+            customer.subscriptionName;
+    }
+
+    if (endElement) {
+        endElement.textContent =
+            formatDate(customer.subscriptionEnd);
+    }
+
+    if (resultContainer) {
+        resultContainer.style.display = "block";
+    }
+
+    // الاحتفاظ ببيانات آخر حساب تم إنشاؤه لنسخها.
+
+    window.lastCreatedCustomer = customer;
+}
+
+
+// ======================================================
+// 13. COPY TEXT
+// ======================================================
+
+async function copyText(text) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(String(text));
+
+            showMessage("تم النسخ بنجاح.");
+
+            return;
+        }
+
+        const textarea = document.createElement("textarea");
+
+        textarea.value = String(text);
+
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+
+        document.body.appendChild(textarea);
+
+        textarea.select();
+
+        const copied = document.execCommand("copy");
+
+        document.body.removeChild(textarea);
+
+        if (copied) {
+            showMessage("تم النسخ بنجاح.");
+        } else {
+            showMessage("تعذر النسخ تلقائيًا.");
+        }
+
+    } catch (error) {
+        console.error("Copy error:", error);
+
+        showMessage("تعذر النسخ.");
+    }
+}
+
+
+// ======================================================
+// 14. COPY ACCOUNT NUMBER
+// ======================================================
+
+function copyAccountNumber() {
+    if (
+        window.lastCreatedCustomer &&
+        window.lastCreatedCustomer.accountNumber
+    ) {
+        copyText(
+            window.lastCreatedCustomer.accountNumber
+        );
+    }
+}
+
+
+// ======================================================
+// 15. COPY PASSWORD
+// ======================================================
+
+function copyCustomerPassword() {
+    if (
+        window.lastCreatedCustomer &&
+        window.lastCreatedCustomer.password
+    ) {
+        copyText(
+            window.lastCreatedCustomer.password
+        );
+    }
+}
+
+
+// ======================================================
+// 16. COPY CUSTOMER DETAILS
+// ======================================================
+
+function copyCustomerDetails() {
+    const customer = window.lastCreatedCustomer;
+
+    if (!customer) {
+        showMessage("لا توجد بيانات حساب لنسخها.");
+        return;
+    }
+
+    const details =
+        "BOK PEDRO\n" +
+        "اسم العميل: " + customer.username + "\n" +
+        "رقم الحساب: " + customer.accountNumber + "\n" +
+        "كلمة المرور: " + customer.password + "\n" +
+        "البريد: " + customer.email + "\n" +
+        "الاشتراك: " + customer.subscriptionName + "\n" +
+        "تاريخ الانتهاء: " +
+        formatDate(customer.subscriptionEnd);
+
+    copyText(details);
+}
+
+
+// ======================================================
+// 17. ADMIN LOGOUT
+// ======================================================
+
+async function adminLogout() {
+    try {
         await signOut(auth);
 
-        accountSection.style.display =
-            "none";
+        showLoginPage();
 
-        loginSection.style.display =
-            "block";
+        showMessage("تم تسجيل الخروج.");
 
-        adminPassword.value =
-            "";
+    } catch (error) {
+        console.error("Logout error:", error);
 
-        message.innerHTML =
-            "";
-
-        message.style.display =
-            "none";
-
+        showMessage("تعذر تسجيل الخروج.");
     }
-);
+}
+
+
+// ======================================================
+// 18. CONNECT BUTTONS AND FORMS
+// ======================================================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const loginForm = getElement(
+        "loginForm",
+        "adminLoginForm"
+    );
+
+    if (loginForm) {
+        loginForm.addEventListener(
+            "submit",
+            adminLogin
+        );
+    }
+
+    const loginButton = getElement(
+        "loginButton",
+        "adminLoginButton",
+        "loginBtn"
+    );
+
+    if (loginButton && !loginForm) {
+        loginButton.addEventListener(
+            "click",
+            adminLogin
+        );
+    }
+
+    const createForm = getElement(
+        "createCustomerForm",
+        "createAccountForm",
+        "createUserForm"
+    );
+
+    if (createForm) {
+        createForm.addEventListener(
+            "submit",
+            createCustomer
+        );
+    }
+
+    const createButton = getElement(
+        "createCustomerButton",
+        "createAccountButton",
+        "createUserBtn"
+    );
+
+    if (createButton && !createForm) {
+        createButton.addEventListener(
+            "click",
+            createCustomer
+        );
+    }
+
+    const logoutButton = getElement(
+        "logoutButton",
+        "adminLogoutButton",
+        "logoutBtn"
+    );
+
+    if (logoutButton) {
+        logoutButton.addEventListener(
+            "click",
+            adminLogout
+        );
+    }
+
+    const copyAccountButton = getElement(
+        "copyAccountButton",
+        "copyAccountNumber"
+    );
+
+    if (copyAccountButton) {
+        copyAccountButton.addEventListener(
+            "click",
+            copyAccountNumber
+        );
+    }
+
+    const copyPasswordButton = getElement(
+        "copyPasswordButton",
+        "copyCustomerPassword"
+    );
+
+    if (copyPasswordButton) {
+        copyPasswordButton.addEventListener(
+            "click",
+            copyCustomerPassword
+        );
+    }
+
+    const copyDetailsButton = getElement(
+        "copyDetailsButton",
+        "copyCustomerDetails"
+    );
+
+    if (copyDetailsButton) {
+        copyDetailsButton.addEventListener(
+            "click",
+            copyCustomerDetails
+        );
+    }
+
+});
+
+
+// ======================================================
+// 19. GLOBAL FUNCTIONS FOR HTML ONCLICK
+// ======================================================
+
+window.adminLogin = adminLogin;
+
+window.adminLogout = adminLogout;
+
+window.createCustomer = createCustomer;
+
+window.copyText = copyText;
+
+window.copyAccountNumber = copyAccountNumber;
+
+window.copyCustomerPassword = copyCustomerPassword;
+
+window.copyCustomerDetails = copyCustomerDetails;
